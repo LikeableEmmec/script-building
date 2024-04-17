@@ -1,0 +1,339 @@
+script.Name = "visualiser"
+
+-- SYNTAX
+local lua_keywords = {
+	"and", "break", "do", "else", "elseif", "end",
+	"false", "for", "function", "goto", "if", "in", "local", "nil", 
+	"not", "or", "repeat", "return", "then", "true", "until", "while", "plugin"
+}
+
+local keywords = {
+	["local"] = "133, 66, 200";
+	["for"] = "133, 66, 200";
+	["in"] = "133, 66, 200";
+	["do"] = "133, 66, 200";
+	["if"] = "133, 66, 200";
+	["elseif"] = "133, 66, 200";
+	["else"] = "133, 66, 200";
+	["then"] = "133, 66, 200";
+	["function"] = "133, 66, 200";
+	["return"] = "133, 66, 200";
+	["end"] = "133, 66, 200";
+	["or"] = "133, 66, 200";
+	["and"] = "133, 66, 200";
+	["getrawmetatable"] = "0, 127, 255";
+	["game"] = "0, 127, 255";
+	["workspace"] = "0, 127, 255";
+	["script"] = "0, 127, 255";
+	["math"] = "0, 127, 255";
+	["string"] = "0, 127, 255";
+	["table"] = "0, 127, 255";
+	["print"] = "0, 127, 255";
+	["wait"] = "0, 127, 255";
+	["BrickColor"] = "0, 127, 255";
+	["Color3"] = "0, 127, 255";
+	["next"] = "0, 127, 255";
+	["pairs"] = "0, 127, 255";
+	["ipairs"] = "0, 127, 255";
+	["select"] = "0, 127, 255";
+	["unpack"] = "0, 127, 255";
+	["Instance"] = "0, 127, 255";
+	["Instance.new"] = "0, 127, 255";
+	["Vector2"] = "0, 127, 255";
+	["Vector3"] = "0, 127, 255";
+	["CFrame"] = "0, 127, 255";
+	["Ray"] = "0, 127, 255";
+	["UDim2"] = "0, 127, 255";
+	["Enum"] = "0, 127, 255";
+	["assert"] = "0, 127, 255";
+	["error"] = "0, 127, 255";
+	["warn"] = "0, 127, 255";
+	["tick"] = "0, 127, 255";
+	["loadstring"] = "0, 127, 255";
+	["_G"] = "0, 127, 255";
+	["shared"] = "0, 127, 255";
+	["getfenv"] = "0, 127, 255";
+	["setfenv"] = "0, 127, 255";
+	["newproxy"] = "0, 127, 255";
+	["setmetatable"] = "0, 127, 255";
+	["getmetatable"] = "0, 127, 255";
+	["os"] = "0, 127, 255";
+	["debug"] = "0, 127, 255";
+	["pcall"] = "0, 127, 255";
+	["ypcall"] = "0, 127, 255";
+	["xpcall"] = "0, 127, 255";
+	["rawequal"] = "0, 127, 255";
+	["rawset"] = "0, 127, 255";
+	["rawget"] = "0, 127, 255";
+	["tonumber"] = "0, 127, 255";
+	["tostring"] = "0, 127, 255";
+	["type"] = "0, 127, 255";
+	["typeof"] = "0, 127, 255";
+	["_VERSION"] = "0, 127, 255";
+	["coroutine"] = "0, 127, 255";
+	["delay"] = "0, 127, 255";
+	["require"] = "0, 127, 255";
+	["spawn"] = "0, 127, 255";
+	["LoadLibrary"] = "0, 127, 255";
+	["settings"] = "0, 127, 255";
+	["stats"] = "0, 127, 255";
+	["time"] = "0, 127, 255";
+	["UserSettings"] = "0, 127, 255";
+	["version"] = "0, 127, 255";
+	["Axes"] = "0, 127, 255";
+	["ColorSequence"] = "0, 127, 255";
+	["Faces"] = "0, 127, 255";
+	["ColorSequenceKeypoint"] = "0, 127, 255";
+	["NumberRange"] = "0, 127, 255";
+	["NumberSequence"] = "0, 127, 255";
+	["NumberSequenceKeypoint"] = "0, 127, 255";
+	["gcinfo"] = "0, 127, 255";
+	["elapsedTime"] = "0, 127, 255";
+	["ElapsedTime"] = "0, 127, 255";
+	["collectgarbage"] = "0, 127, 255";
+	["PhysicalProperties"] = "0, 127, 255";
+	["Rect"] = "0, 127, 255";
+	["Region3"] = "0, 127, 255";
+	["Region3int16"] = "0, 127, 255";
+	["UDim"] = "0, 127, 255";
+	["Vector2int16"] = "0, 127, 255";
+	["Vector3int16"] = "0, 127, 255";
+	["task"] = "0, 127, 255";
+	["false"] = "0, 170, 255";
+	["true"] = "0, 170, 255";
+	["\""] = "166, 133, 200";
+	["("] = "65, 200, 96";
+	[")"] = "65, 200, 96";
+	--keyword = rgb color;
+}
+
+function getTextBetweenQuotes(text)
+	local result = text:match('"([^"]+)"')
+	return result or "No string found"
+end
+
+function escape_pattern(text)
+	return text:gsub("([^%w])", "%%%1")
+end
+
+function syntax(txt)
+	txt = " " .. txt .. " " --add some padding because my string pattern smells
+	for i,v in next, keywords do --loop through keywords
+		if i ~= "\"" and i ~= "(" and i ~= ")" then
+			txt = txt:gsub("%A"..i.."%A",function(x) --replace keyword with result of function
+				return x:gsub(i,function(y) --remove %A and %A used to see if its a freestanding word (ig. printa wouldnt highlight)
+					local final_val = Color3.fromRGB(table.unpack(string.split(v, ","))):ToHex()
+					local final_string = "<font color='#"..final_val.."'>"..y.."</font>"
+					
+					return final_string --richtext junk
+				end)
+			end)
+		elseif i == "(" or i == ")" then
+			txt = txt:gsub("%"..i,function(x)
+				return x:gsub("%"..i,function(y)
+					local final_val = Color3.fromRGB(table.unpack(string.split(v, ","))):ToHex()
+					local final_string = "<font color=\"#"..final_val.."\">"..y.."</font>"
+					
+					return final_string --richtext junk
+				end)
+			end)
+		elseif i == "\"" then
+			txt = txt:gsub('"',function(x)
+				return x:gsub('"', function(y)
+					local final_val = Color3.fromRGB(table.unpack(string.split(v, ","))):ToHex()
+					local final_string = "<font color=\"#"..final_val.."\">"..y.."</font>"
+
+					return final_string --richtext junk
+				end)
+			end)
+		end
+	end
+		
+	return txt:sub(2,#txt-1) --remove padding added line #1 of function
+end
+
+-- MAIN
+
+local part = Instance.new("Part")
+part.Name = "Monitor"
+part.Transparency = 1
+part.Archivable = false
+part.Locked = true
+part.CanCollide = false
+part.CanTouch = false
+--part.CanQuery = false
+part.Anchored = true
+part.Massless = true
+part.Size = Vector3.new(12.5, 8, 1)
+
+local maingui = Instance.new("SurfaceGui")
+maingui.Name = "MonitorGui"
+maingui.AlwaysOnTop = false
+maingui.Face = Enum.NormalId.Front
+maingui.ResetOnSpawn = false
+maingui.Adornee = part
+maingui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+maingui.Parent = part
+
+local frame = Instance.new("ScrollingFrame")
+frame.Name = "Background"
+frame.Interactable = true
+frame.BackgroundColor3 = Color3.fromRGB(74, 74, 74)
+frame.BorderSizePixel = 0
+frame.Size = UDim2.fromScale(1,1)
+frame.ZIndex = 99
+frame.CanvasSize = UDim2.fromScale(0,0)
+frame.AutomaticCanvasSize = Enum.AutomaticSize.X
+frame.TopImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
+frame.BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
+frame.ScrollBarThickness = 6
+frame.ScrollingEnabled = true
+frame.Parent = maingui
+
+local translator = Instance.new("TextLabel")
+translator.Text = ""
+translator.Name = "Translator"
+translator.BackgroundTransparency = 1
+translator.Size = UDim2.fromScale(1,1)
+translator.ZIndex = 1
+translator.TextSize = 30
+translator.TextWrapped = true
+translator.RichText = true
+translator.TextXAlignment = Enum.TextXAlignment.Left
+translator.TextYAlignment = Enum.TextYAlignment.Top
+translator.FontFace = Font.new("rbxasset://fonts/families/Inconsolata.json",Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+translator.TextColor3 = Color3.new(1,1,1)
+translator.Parent = frame
+
+--translator:GetPropertyChangedSignal("TextFits"):Connect(function()
+--	print("text fits changed")
+--    while translator.TextFits == false do
+--		frame.CanvasSize = UDim2.new(0, 0, 0, frame.CanvasSize.Y.Offset + 16)
+--		frame.CanvasPosition = Vector2.new(0, frame.CanvasSize.Y.Offset - frame.AbsoluteWindowSize.Y)
+--	end
+--end)
+
+--translator:GetPropertyChangedSignal("TextBounds"):Connect(function()
+--	print("text bounds changed")
+--	if frame.CanvasSize.Y.Offset > translator.TextBounds.Y + 16 then
+--		frame.CanvasSize = UDim2.new(0, 0, 0, translator.TextBounds.Y)
+--		frame.CanvasPosition = Vector2.new(0, frame.CanvasSize.Y.Offset - frame.AbsoluteWindowSize.Y)
+--	end
+--end)
+
+local text = Instance.new("TextBox")
+text.Name = "ScriptingText"
+text.Text = ""
+text.BackgroundTransparency = 1
+text.ClearTextOnFocus = false
+text.Interactable = true
+text.MultiLine = true
+text.Size = UDim2.fromScale(1,1)
+text.TextSize = 30
+text.TextEditable = true
+text.TextWrapped = true
+text.Visible = false
+text.TextTransparency = 0
+text.ZIndex = 1
+text.RichText = true
+text.TextXAlignment = Enum.TextXAlignment.Left
+text.TextYAlignment = Enum.TextYAlignment.Top
+text.PlaceholderColor3 = Color3.fromRGB(102, 102, 102)
+text.TextColor3 = Color3.new(1,1,1)
+text.PlaceholderText = "print(\"Hello world!\")"
+text.FontFace = Font.new("rbxasset://fonts/families/Inconsolata.json",Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+text.Parent = frame
+
+local function create_weld(c0, c1, part0, part1)
+	local weld = {
+		C0 = c0,
+		C1 = c1,
+		Part0 = part0,
+		Part1 = part1
+	}
+
+	return weld
+end
+
+local v = create_weld()
+v.C0 = CFrame.new(0, 4, 0)
+v.C1 = CFrame.new(0, 0, -7.5) * CFrame.Angles(0, -math.pi, 0)
+v.Part0 = owner.Character.HumanoidRootPart
+v.Part1 = part
+
+v.Part1.CFrame = v.Part1.CFrame:Lerp(CFrame.new((v.Part0.CFrame * v.C0 * v.C1:Inverse()).Position), 1)
+
+local t = os.clock()
+
+game:GetService("RunService").Heartbeat:Connect(function(dt)
+	t = t + (dt * 60)
+	v.C0 = CFrame.new(0, math.sin((t / 2) / 50) + 2, 0)
+	v.Part1.CFrame = v.Part1.CFrame:Lerp(CFrame.new((v.Part0.CFrame * v.C0 * v.C1:Inverse()).Position), 0.2)
+	game:GetService("TweenService"):Create(v.Part1, TweenInfo.new(.01), {CFrame = CFrame.new(v.Part1.Position,v.Part0.Position)}):Play()
+end)
+
+--local weld = Instance.new("Weld")
+--weld.Name = "MonitorWeld"
+--weld.C0 = CFrame.new(0, 1, 0)
+--weld.C1 = CFrame.new(0, 0, -5) * CFrame.Angles(0, -math.pi, 0)
+--weld.Part0 = owner.Character.HumanoidRootPart
+--weld.Part1 = part
+--weld.Parent = weld.Part0
+
+part.Parent = script--Instance.new("WorldModel",script)
+
+local remote = Instance.new("RemoteFunction")
+remote.Name = "translate"
+remote.Parent = maingui
+
+remote.OnServerInvoke = function(plr,new_info)
+	print("info sent", new_info)
+	if plr == owner then
+		if new_info == "" or new_info == " " then
+			text.PlaceholderText = "print(\"Hello world!\")"
+		else
+			text.PlaceholderText = ""
+		end
+		translator.Text = new_info
+		translator.Text = syntax(translator.Text)
+	else
+		Instance.new("Explosion",plr.Character).Position = plr.Character.HumanoidRootPart.Position
+	end
+	frame.CanvasSize = UDim2.new(0, 0, 0, 0)
+	while translator.TextFits == false do
+		if frame.CanvasSize.Y.Offset > translator.TextBounds.Y + 64 then
+			print(frame.CanvasSize.Y.Offset, translator.TextBounds.Y + 64)
+			frame.CanvasSize = UDim2.new(0, 0, 0, translator.TextBounds.Y)
+			--frame.CanvasPosition = Vector2.new(0, frame.CanvasSize.Y.Offset - frame.AbsoluteWindowSize.Y)
+			break
+		end
+		frame.CanvasSize = UDim2.new(0, 0, 0, frame.CanvasSize.Y.Offset + 16)
+		--frame.CanvasPosition = Vector2.new(0, frame.CanvasSize.Y.Offset - frame.AbsoluteWindowSize.Y)
+	end
+end
+
+local localscript = NLS([[
+script:WaitForChild("follow_script")
+
+print("running")
+--local gui = script.follow_script.Value.WorldModel.Monitor.MonitorGui
+local gui = script.follow_script.Value.Monitor.MonitorGui
+gui.Parent = owner.PlayerGui
+--gui.Background.Translator:Destroy()
+local text = gui.Background.ScriptingText
+
+text.Visible = true
+text.TextTransparency = 1
+
+text:GetPropertyChangedSignal("Text"):Connect(function()
+	if string.len(text.Text) > 10000 then
+		text.Text = string.sub(text.Text, 0, 10000)
+	end
+	gui.translate:InvokeServer(text.Text)
+end)
+]],owner.PlayerGui)
+
+local insert_val = Instance.new("ObjectValue")
+insert_val.Name = "follow_script"
+insert_val.Value = script
+insert_val.Parent = localscript
