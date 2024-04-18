@@ -309,6 +309,7 @@ remote.OnServerInvoke = function(plr,new_info)
 		end
 		frame.CanvasSize = UDim2.new(0, 0, 0, frame.CanvasSize.Y.Offset + 16)
 		--frame.CanvasPosition = Vector2.new(0, frame.CanvasSize.Y.Offset - frame.AbsoluteWindowSize.Y)
+		task.wait()
 	end
 end
 
