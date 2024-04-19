@@ -73,7 +73,7 @@ local char : Model = LoadAssets(17182500812):Get("Character")
 local char_hum : Humanoid = char:FindFirstChildOfClass("Humanoid")
 local char_hrp : Part = char:FindFirstChild("HumanoidRootPart")
 
-local intermission = 30
+local intermission = 10
 local current_time = intermission
 
 -- services
