@@ -1,0 +1,193 @@
+script.Name = "lyrics_guesser"
+
+-- dont be a spoilsport and look at the answers
+local songs = {
+	["Somewhere Only We Know"] = "I walked across an empty land\nI knew the pathway like the back of my hand\nI felt the earth beneath my feet\nSat by the river and it made me complete\nOh, simple thing, where have you gone?\nI'm gettin' old, and I need something to rely on\nSo, tell me when you're gonna let me in\nI'm gettin' tired, and I need somewhere to begin",
+	["Buttercup"] = "Forget it, I'll do it sometime, ooh\nI'm locked up on the button\nCan't you do it sometime?\nPushed it in too far, ooh!\nFine, electrify mine, oh\nElectrify my golden tooth\nCan't look at your eyes\nWithout sparking some\n",
+	["CARNIVAL"] = "Go, go, go, go\nHead so good, she a honor roll\nShe'll ride the **** like a carnival\nI done did the impossible\nGo, go, go, go\nHead so good, she an honor roll\nI done did the impossible",
+	["Champion"] = "Did you realize\nThat you were a champion in their eyes?\nYes, I did, so I packed it up and brought it back to the crib\nJust a lil' somethin' show ya how we live\nE'rybody want it but it ain't that serious\nMm-hmm, that's that ****\nSo if you gon' do it, do it just like this",
+	["Going To A Town"] = "I'm going to a town that has already been burnt down\nI'm going to a place that has already been disgraced\nI'm gonna see some folks who have already been let down\nI'm so tired of America",
+	["Where'd All The Time Go"] = "Where'd all the time go?\nIt's starting to fly\nSee how the hands go\nWaving goodbye\nAnd you know I get so forgetful\nWhen I look in your eyes\n♪\nNow she's walking backwards\nThrough a parade",
+	["As It Was"] = "Holding me back\nGravity's holding me back\nI want you to hold out the palm of your hand\nWhy don't we leave it at that?\nNothing to say\nWhen everything gets in the way\nSeems you cannot be replaced\nAnd I'm the one who will stay\nOh-oh-oh",
+	["Teenage Dirtbag"] = "Her name is Noelle, I have a dream about her\nShe rings my bell, I got gym class in half an hour\nOh, how she rocks in Keds and tube socks\nBut she doesn't know who I am\nAnd she doesn't give a damn about me",
+	["I'm Still Standing"] = "You could never know what it's like\nYou could never know what it's like\nYour blood like winter freezes just like ice\nAnd there's a cold lonely light that shines from you\nYou'll wind up like the wreck you hide\nBehind that mask you use",
+	["Don't Stop Me Now"] = "Tonight I'm gonna have myself a real good time\nI feel alive\nAnd the world I'll turn it inside out, yeah\nI'm floating around in ecstasy\nSo (don't stop me now)\n(Don't stop me)\nCause I'm having a good time, having a good time",
+	["All Star"] = "Somebody once told me\nThe world is gonna roll me\nI ain't the sharpest tool in the shed\nShe was looking kind of dumb\nWith a finger and her thumb\nIn the shape of an \"L\" on her forehead",
+	["Boulevard of Broken Dreams"] = "I walk a lonely road\nThe only one that I have ever known\nDon't know where it goes\nBut it's home to me, and I walk alone\n♪\nI walk this empty street\nOn the Boulevard of Broken Dreams\nWhere the city sleeps\nAnd I'm the only one and I walk alone",
+	["Say It Aint So"] = "Oh, yeah\n♪\nAlright\n♪\nSomebody's Heine'\nIs crowdin' my icebox\nSomebody's cold one\nIs givin' me chills\nGuess I'll just close my eyes\nOh, yeah\nAlright\nFeels good\nInside",
+	["Sweet Caroline"] = "Where it began\nI can't begin to know when\nBut then I know it's growin' strong\n♪\nWas in the spring\nAnd spring became the summer\nWho'd have believe you'd come along?\nHands\nTouching hands\nTouchin' hands\nReachin' out\nTouching me, touchin' you",
+	["Mr Brightside"] = "I'm coming out of my cage, and I've been doing just fine\nGotta, gotta be down because I want it all\nIt started out with a kiss, how did it end up like this?\nIt was only a kiss, it was only a kiss\nNow I'm falling asleep, and she's calling a cab\nWhile he's having a smoke, and she's taking a drag",
+	["Mr Blue Sky"] = "The sun is shining in the sky\nThere ain't a cloud in sight\nIt's stopped raining\nEverybody's in the play\nAnd don't you know, it's a beautiful new day\nHey, hey, hey!\nRunning down the avenue\nSee how the sun shines brightly in the city\nAll the streets where once was pity\nMr. Blue Sky is living here today!\nHey, hey ,hey!",
+	["Human"] = "I'm only human\nI'm only, I'm only\nI'm only human, human\nMaybe I'm foolish\nMaybe I'm blind\nThinking I can see through this\nAnd see what's behind\nGot no way to prove it\nSo maybe I'm blind\nBut I'm only human after all\nI'm only human after all\nDon't put your blame on me",
+	["Break My Stride"] = "Last night I had the strangest dream\nI sailed away to China\nIn a little row boat to find ya\nAnd you said you had to get your laundry cleaned\nDidn't want no one to hold you\nWhat does that mean?\nAnd you said\Ain't nothin' gonna break my stride\nNobody gonna slow me down, oh no\nI got to keep on moving",
+	["Somebody That I Used To Know"] = "But you didn't have to cut me off\nMake out like it never happened and that we were nothin'\nAnd I don't even need your love\nBut you treat me like a stranger, and that feels so rough\nNo, you didn't have to stoop so low\nHave your friends collect your records and then change your number\nI guess that I don't need that though\nNow you're just somebody that I used to know",
+	["Jump"] = "I get up\nAnd nothing gets me down\nYou got it tough\nI've seen the toughest around\nAnd I know\nBaby, just how you feel\nYou've got to roll with the punches to get to what's real",
+	["Let It Be"] = "When I find myself in times of trouble\nMother Mary comes to me\nSpeaking words of wisdom, let it be\nAnd in my hour of darkness\nShe is standing right infront of me\nSpeaking words of wisdom, let it be",
+	["Goodbye To A World"] = "Thank you, I'll say goodbye soon\nThough it's the end of the world, don't blame yourself now\nAnd if it's true, I will sorround you and give life to a world\nThat's our own",
+	["About A Girl"] = "I need an easy friend\nI do, with an ear to lend\nI do, think you fit this shoe\nI do, but you have a clue\nI'll take advantage while\nYou hang me out to dry\nBut I can't see you every night\nFree",
+	["Hey Ya!"] = "One, two, three, uh!\nMy baby don't mess around\nBecause she loves me so\nAnd this I know fo sho\nBut does she really wanna\nBut can't stand to see me walk out the door?\nDon't try to fight the feeling\n'Cause the thought alone is killing me right now",
+	["Notion"] = "Sure it's a calming notion, perpetual in motion\nBut I don't need the comfort of any lies\nFor I have seen the ending and there is no ascending\nRise",
+	["Girls And Boys"] = "Street's like a jungle\nSo call the police\nFollowing the herd\nDown to Greece on holiday\nLove in the 90's is paranoid\nOn sunny beaches\nTake your chances\nLooking for\nGirls who are boys\nWho like boys to be girls\nWho do boys like they're girls\nWho do girls like they're boys\nAlways should be someone you really love",
+	["Night Ride"] = "Too soon, wanted more time\nCould've held out, but your clock was ticking\nNo easing in, straighened out lines\nAlone with your thoughts\n'Cause your friends are still in\nNight clubs and back rooms\nBaggies in the bathrooms\nNothing's changed but you\nSaying nothing's missing\nThoughts are drifting away from you",
+	["Here Comes Your Man"] = "Outside there's a box car waiting\nOutisde the family stew\nOut by the fire breathing\nOutside we wait till face turns blue\nI know the nervous walking\nI know the dirty beard hangs\nOut by the box car waiting\nTake me away to nowhere plains\nThere is a wait so long (so long, so long)\nYou'll never wait so long\nHere comes your man\nHere comes your man\nHere comes your man",
+	["Its Called Freefall"] = "Called to the Devil and the Devil did come\nI said to the Devil, \"Devil, do you like drums?\nDo you like cigarettes dominoes, rum?\"\nHe said, \"Only sundown, Sundays, Christmas\"\nSome days end when I need a few friends\nNow and again, I could never hope to keep them\nThought to give friends what I thought that they wanted\nNever had they needed a good friend as I've been",
+	["Uptown Girl"] = "Uptown girl\nShe's been living in her uptown world\nI bet she's never had a backstreet guy\nI bet her momma never told her why\nI'm gonna try for an uptown girl\nShe's been living in her white-bred world\nAs long as anyone with hot blood can\nAnd now she's looking for a downtown man\nThat's what I am",
+	["Rocket Man"] = "She packed my bags last night, pre-flight\nZero hour, 9:00 a.m.\nAnd I'm gonna be high as a kite by then\n♪\nI miss the Earth so much, I miss my wife\nIt's lonely out in Space\nOn such a timeless flight",
+	["Fortunate Son"] = "Some folks are born made to wave the flag\nThey're red, white and blue\nAnd when the band plays \"Hail to the Chief\"\nThey point the cannon at you, Lord\nIt ain't me, it ain't me\nI ain't no senator's son, son\nIt ain't me, it ain't it\nI ain't no fortunate one",
+	["No One Else"] = "My girl's got a big mouth\nWith it she blabbers a lot\nShe laughs at most everything\nWhether it's funny or not\nAnd if you see her\nTell her it's over now",
+	["Jealous"] = "You could have anyone you want\nWhy would you want to be with me?\nI'm nothing special\nYou could have anyone you want\nWhy would you want to be with me?\nYou know, I'm nothing special\nBe with whoever you want",
+	["Bobby Sox"] = "Do you wanna be my girlfriend?\nI'll take you to a movie that we've already seen\nOr sit at home and watch reruns\nThere's no other place I wanna be\n(Ooh, ooh, ooh, ooh ,ooh, ooh, ooh-ooh)\n(Ooh, ooh, ooh, ooh ,ooh, ooh, ooh-ooh)\nDo you wanna be my girlfriend?\nDo you wanna be my girlfriend?\nDo you wanna be my girlfriend?",
+	["I Just Threw Out The Love Of My Dreams"] = "I'm so tall, can't get over me\nI'm so low, can't get under me\nI must be all these things\nFor I just threw out the love of my dreams\nHe is in my eyes, he is in my ears\nHe is in my blood, he is in my tears",
+	["John Take Me With You"] = "John, take me away\nGone, I'm done with the day\nI know the feeling\nI really do\nThe ground is sinking\nRight under you\nOh, john\nTake me with you\nOh, John\nTake me with you",
+	["Paint It Black"] = "I see a red door and I want it painted black\nNo colors anymore, I want them to turn black\nI see the girls walk by, dressed in their summer clothes\nI have to turn my head until my darkness goes\nI see a line of cars, and they're all painted black\nWith flowers and my love both never to come back",
+	["A Tear For Rosie"] = "Why didn't you come back home Rosie?\nWere you crushed by love\nAnd lonely nights?\nAt the time I was carried away\nLed you astray\nLost in my way\nBut I remember you Rosie",
+	["Stay For Something"] = "I told you that my band started popping off\nYou told me that you played guitar\nI knew that you had lied at the time you said it\nBut you could play my heart",
+	["RUNNING IN THE 90'S"] = "Modern talking, modern walking in the streets\nNew desire\nTake me higher, lift me higher with your speed\nI need fire\nGet the satellite\nIf you want to see me\nTalking on the net\nI know the way you like it\nGet your credit cards\nCause I need to money\nAll I wanna get is you, baby",
+	["Smells Like Teen Spirit"] = "Load up on guns, bring your friends\nIt's fun to lose and to pretend\nShe's over-bored and self-assured\nOh no, I know a dirty word\nHello, hello, hello, how low\nHello, hello, hello, how low\nHello, hello, hello, how low\nHello, hello, hello\nWith the lights out, it's less dangerous\nHere we are now, entertain us\nI feel stupid and contagious\nhere we are now, entertain us",
+	["Whatever"] = "I'm free to be whatever I\nWhatever I choose, and I'll sing the blues if I want\nI'm free to say whatever I\nWhatever I like if it's wrong or right, it's alright\nAlways seems to me\nYou only see what people want you to see\nHow long's it gonna be\nBefore we get on bus and cause no fuss\nGet a grip on yourself, it don't cost much",
+	["Atomic"] = "Uh, huh, make me tonight\nTonight\nMake it right\nUh-huh, make me tonight\nTonight\nTonight\nOh, uh-huh, make it magnificent\nTonight\nRight\nYour hair is beautiful\nTonight\nAtomic",
+	["Another Weekend"] = "Another weekend out of my life\nI'm either too shy or humble\nAnother weekend out of my life\nIs gonna get me into trouble\nFeel your body, warm and close behind me\nI turn around, but you're not there\nThough I fail to ignore this resignation\nYou're standing there",
+	["Out of My League"] = "40 days and 40 nights\nI waited for a girl like you to come and save my life\nRecall the days I waited for you\nYou know the ones who said I'd never find someone like you\n'Cause you were out of my league\nAll the things I believe\nYou were just the right kind\nYeah, you were more than just a dream\nYou were out of my league\nGot my heartbeat racing\nIf I die, don't wake me\n'Cause you are more than just a dream",
+	["Eleanor Rigby"] = "Ah, look at all the lonely people\nAh, look at all the lonely people\nEleanor Rigby\nPicks up the rice in the church where a wedding has been\nLives in a dream\nWaits at the window\nWearing the face that she keeps in a jar by the door\nWho is it for?\nAll the lonely people\nWhere do they all come from?\nAll the lonely people\nWhere do they all belong?",
+	["Cigarette Daydreams"] = "Did you stand there all alone?\nOh, I cannot explain what's going down\nI can see you standing next to me\nIn and out somewhere else right now\nYou sigh, look away\nI can see it clear as day\nClose your eyes, so afraid\nHide behind that baby face\nDo-do-do, do-do-do",
+	["Livin' Thing"] = "Sailin' away on a crest of a wave, it's like magic\nOh, rollin' and ridin' and slippin' and slidin', it's magic\nAnd you and your sweet desire\nYou took me, oh (higher and higher baby)\nIt's a livin' thing\nIt's a terrible thing to lose\nIt's a givin' thing\nWhat a terrible thing to lose\n(I'm takin' a dive!)\n(Dive!)",
+	["Take Me To Church"] = "My lover's got humour, she's the giggle at a funeral\nKnows everybody's disapproval\nThey should've worshipped her sooner\nIf the heavens ever did speak, she's the last true mouthpiece\nEvery Sunday's getting more bleak, a fresh poison each week\n\"We were born sick\"\nHeard them say it",
+	["Thats Life"] = "That's life (that's life)\nThat's what all the people say\nYou're riding high in April, shot down in May\nBut I know I'm gonna change that tune\nWhen I'm back on top, back on top in June\nI said that's life (that's life)\nAnd as funny as it may seem\nSome people get their kicks\nStomping on a dream\nBut I don't let it, let it get me down\nCause this fine old world, it keeps spinnin' around",
+	["Waiting"] = "I've been waiting a long time\nFor this moment to come, I'm\nDestined for anything at all\nDowntown, lights will be shining\nOn me, like in a diamond\nRing out under the midnight hour",
+	["Gilded Lily"] = "Now it's been long enough to talk about it\nI've started not to doubt it, just wrap my head around it\nI remember when you told me it's an everyday decision\nBut with my double vision, how was I supposed to see the way?\nHaven't I given enough, given enough?\nHaven't I given enough, given enough\nHaven't I given enough, given enough\nHaven't I given enough, given enough?",
+	["Don't You Forget About Me"] = "Won't you come see about me?\nI'll be alone, dancing, you know it, baby\nTell me your troubles and doubts\nGive them everything, inside and out and\nLove's strange, so real in the dark\nThink of the tender things that we were working on\nSlow change may pull us apart\nWhen the light gets into your heart, baby",
+	["Boys Dont Cry"] = "I would say I'm sorry if I thought that it would\nChange your mind\nBut I know that this time\nI have said too much\nBeen too unkind\nI try to laugh about it\nCover it all up with lies\nI try to laugh about it\nHiding the tears in my eyes\n'Cause boys don't cry\nBoys don't cry",
+	["Lovefool"] = "Dear, I fear we're facing a problem\nYou love me no longer, I know\nAnd maybe there is nothing\nThat I can do to make you do\nMama tells me I shouldn't bother\nThat I ought to stick to another man\nA man that surely deserves me\nBut I think you do\nSo, I cry, and I pray and I beg",
+	["Cant Make Up My Mind"] = "My \"Gone Fishing\" alibi\nYou won't see me 'til Wednesday\nBut I'm fine\nNo, really, I'm fine\nLike a teenage Frankenstein\nMy head's a mess, but from the neck down\nI'm fine\nI'm actually fine",
+	["rises the moon"] = "Days seem sometimes as if they'll never end\nSun digs its heels to taunt you\nBut after sunlit days, one thing stays the same\nRises the moon\nDays fade into a watercolour blur\nMemories swim and haunt you\nBut look into the lake, shimmering like smoke\nRises the moon\nOh-oh, close your weary eyes\nI promise you that soon the autumn comes\nTo darken fading summer skies\nBreathe, breathe, breathe",
+	["Everlong"] = "Hello\nI've waited here for you\nEverlong\nTonight\nI throw myself into\nAnd out of the red, out of her head, the sang\n♪\nCome down\nAnd waste away with me\nDown with me\nSlow how\nYou wanted it to be\nI'm over my head, out of her head the sang",
+	["Moonlight"] = "I just wanna get high with my over\nVeo una muñeca cuando miro en el espejo\nKiss, kiss, looking dolly, I think I may go out tonight\nI just wanna ride, get higher in the moonlight\nI just wanna get high with my lover\nVeo una muñeca cuando miro en el espejo\nKiss, kiss, looking dolly, I think I may go out tonight\nI just wanna ride, get high in the moonlight",
+	["Linger"] = "If you, if you could return\nDon't let it burn, don't let it fade\nI'm sure, I'm not being rude\nBut it's just your attitude\nIt's tearing me apart\nAnd it's ruining everything\nI swore, I swore it would be true\nAnd honey, so did you\nSo why were you holding her hand?\nIs that the way we stand?\nWere you lying all the time?\nWas it just a game to you?",
+	["Creep"] = "When you were here before\nCouldn't look you in the eye\nYou're just like an angel\nYour skin makes me cry\nYou float like a feather\nIn a beautiful world\nI wish I was special\nYou're so ******' special\nBut I'm a creep\nI'm a weirdo\nWhat the hell am I doin' here?\nI don't belong here",
+	["Hell N Back"] = "Coudl you tell where my head was at when you found me?\nMe and you went to hell and back just to find peace\nMan, I thought I had everything, I was lonely\nNow you're my everything, I was lonely\nI mixed a lot of love with a lot of drugs, then I found you\nShe liked petty crimes, she had green eyes like Mountain Dew\nAnd where she go, I'll never know\nHer friends too\nI guess it's their loss 'cause they'll never know what we'll amount to",
+}
+
+-- main vars
+local char : Model = LoadAssets(17182500812):Get("Character")
+local char_hum : Humanoid = char:FindFirstChildOfClass("Humanoid")
+local char_hrp : Part = char:FindFirstChild("HumanoidRootPart")
+
+local intermission = 10
+local current_time = intermission
+
+-- services
+local players = game:GetService("Players")
+
+-- main
+
+local function display()
+	local new_string = current_time > 1 and "Starting in "..current_time.." seconds!" or current_time == 1 and "Starting in 1 second!" or current_time == 0 and "Match in progress..."
+
+	char_hrp.Anchored = true
+	char_hum.DisplayName = "Join the lyrics guessing game, how many songs do you know?\n\nGuess what song it is by typing \"guess%(song name)\"\ne.g \"guess%Somewhere Only We Know\", make sure you do not misspell or your answer will not count! (not case sensitive)\n\n"..new_string
+end
+
+char.Name = "Character"
+char_hum.NameDisplayDistance = 50
+char.Parent = game
+
+char:PivotTo(CFrame.new(15, 0, 0) * CFrame.Angles(0, math.rad(90), 0))
+
+display()
+
+local anim = Instance.new("Animation")
+--anim.AnimationId = "rbxassetid://33796059"
+anim.AnimationId = "rbxassetid://136801964"
+anim.Name = "dance"
+anim.Parent = char
+
+local new_description = players:GetHumanoidDescriptionFromUserId(owner.UserId)
+char_hum:ApplyDescription(new_description)
+
+char.Parent = script
+
+local loaded_anim : AnimationTrack = char_hum.Animator:LoadAnimation(anim)
+loaded_anim.Looped = true -- for some reason this just doesnt work? no idea why
+--loaded_anim.Priority = Enum.AnimationPriority.Action
+loaded_anim:Play()
+
+char_hum.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
+
+local new_songs = {}
+
+for k in pairs(songs) do
+	table.insert(new_songs, k)
+end
+
+while task.wait(1) do
+	current_time -= 1
+
+	display()
+	
+	if current_time <= 0 then
+		
+		local song = songs[new_songs[math.random(1, #new_songs)]]
+		
+		loaded_anim:Stop()
+		
+		for i, v in pairs(songs) do
+			if v == song then
+				print("input valid")
+				song = {i, v}
+			end
+		end
+		
+		char_hum.DisplayName = "Guess the song (guess%(song name) to guess!):\n"..song[2]
+		
+		current_time = intermission
+		
+		print("Game started!")
+		
+		local ended = false
+		local connections = {}
+		
+		for _, plr in pairs(players:GetPlayers()) do
+			local connec_disconnect
+
+			local connec = plr.Chatted:Connect(function(message)
+				if string.sub(message, 0, 6) == "guess%" then
+					print(plr.Name.. " wants to guess a word: "..string.sub(message, 7))
+					print(string.sub(message,7),string.lower(song[1]))
+					
+					if string.lower(string.sub(message, 7)) == string.lower(song[1]) then
+						print("Correct!")
+						
+						ended = true
+						
+						task.cancel(connec_disconnect)
+						
+						for _, connec_val in pairs(connections) do
+							connec_val:Disconnect()
+						end
+						
+						char_hum.DisplayName = plr.Name.." guessed the song! It was "..song[1]
+						
+					end
+				end
+			end)
+			table.insert(connections,connec)
+			connec_disconnect = task.delay(60,function()
+				connec:Disconnect()
+			end)
+		end
+
+		local start = tick()
+		repeat task.wait() until tick() - start > 60 or ended
+		
+		if ended then
+			task.wait(5)
+		else
+			char_hum.DisplayName = "Nobody guessed it! The song was "..song[1]
+			task.wait(5)
+		end
+		
+		loaded_anim:Play()
+		
+		display()
+	end
+end
