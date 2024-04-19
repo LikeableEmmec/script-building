@@ -7,11 +7,11 @@ local songs = {
 	["CARNIVAL"] = "Go, go, go, go\nHead so good, she a honor roll\nShe'll ride the **** like a carnival\nI done did the impossible\nGo, go, go, go\nHead so good, she an honor roll\nI done did the impossible",
 	["Champion"] = "Did you realize\nThat you were a champion in their eyes?\nYes, I did, so I packed it up and brought it back to the crib\nJust a lil' somethin' show ya how we live\nE'rybody want it but it ain't that serious\nMm-hmm, that's that ****\nSo if you gon' do it, do it just like this",
 	["Going To A Town"] = "I'm going to a town that has already been burnt down\nI'm going to a place that has already been disgraced\nI'm gonna see some folks who have already been let down\nI'm so tired of America",
-	["Where'd All The Time Go"] = "Where'd all the time go?\nIt's starting to fly\nSee how the hands go\nWaving goodbye\nAnd you know I get so forgetful\nWhen I look in your eyes\n♪\nNow she's walking backwards\nThrough a parade",
+	["Whered All The Time Go"] = "Where'd all the time go?\nIt's starting to fly\nSee how the hands go\nWaving goodbye\nAnd you know I get so forgetful\nWhen I look in your eyes\n♪\nNow she's walking backwards\nThrough a parade",
 	["As It Was"] = "Holding me back\nGravity's holding me back\nI want you to hold out the palm of your hand\nWhy don't we leave it at that?\nNothing to say\nWhen everything gets in the way\nSeems you cannot be replaced\nAnd I'm the one who will stay\nOh-oh-oh",
 	["Teenage Dirtbag"] = "Her name is Noelle, I have a dream about her\nShe rings my bell, I got gym class in half an hour\nOh, how she rocks in Keds and tube socks\nBut she doesn't know who I am\nAnd she doesn't give a damn about me",
-	["I'm Still Standing"] = "You could never know what it's like\nYou could never know what it's like\nYour blood like winter freezes just like ice\nAnd there's a cold lonely light that shines from you\nYou'll wind up like the wreck you hide\nBehind that mask you use",
-	["Don't Stop Me Now"] = "Tonight I'm gonna have myself a real good time\nI feel alive\nAnd the world I'll turn it inside out, yeah\nI'm floating around in ecstasy\nSo (don't stop me now)\n(Don't stop me)\nCause I'm having a good time, having a good time",
+	["Im Still Standing"] = "You could never know what it's like\nYou could never know what it's like\nYour blood like winter freezes just like ice\nAnd there's a cold lonely light that shines from you\nYou'll wind up like the wreck you hide\nBehind that mask you use",
+	["Dont Stop Me Now"] = "Tonight I'm gonna have myself a real good time\nI feel alive\nAnd the world I'll turn it inside out, yeah\nI'm floating around in ecstasy\nSo (don't stop me now)\n(Don't stop me)\nCause I'm having a good time, having a good time",
 	["All Star"] = "Somebody once told me\nThe world is gonna roll me\nI ain't the sharpest tool in the shed\nShe was looking kind of dumb\nWith a finger and her thumb\nIn the shape of an \"L\" on her forehead",
 	["Boulevard of Broken Dreams"] = "I walk a lonely road\nThe only one that I have ever known\nDon't know where it goes\nBut it's home to me, and I walk alone\n♪\nI walk this empty street\nOn the Boulevard of Broken Dreams\nWhere the city sleeps\nAnd I'm the only one and I walk alone",
 	["Say It Aint So"] = "Oh, yeah\n♪\nAlright\n♪\nSomebody's Heine'\nIs crowdin' my icebox\nSomebody's cold one\nIs givin' me chills\nGuess I'll just close my eyes\nOh, yeah\nAlright\nFeels good\nInside",
@@ -50,12 +50,12 @@ local songs = {
 	["Out of My League"] = "40 days and 40 nights\nI waited for a girl like you to come and save my life\nRecall the days I waited for you\nYou know the ones who said I'd never find someone like you\n'Cause you were out of my league\nAll the things I believe\nYou were just the right kind\nYeah, you were more than just a dream\nYou were out of my league\nGot my heartbeat racing\nIf I die, don't wake me\n'Cause you are more than just a dream",
 	["Eleanor Rigby"] = "Ah, look at all the lonely people\nAh, look at all the lonely people\nEleanor Rigby\nPicks up the rice in the church where a wedding has been\nLives in a dream\nWaits at the window\nWearing the face that she keeps in a jar by the door\nWho is it for?\nAll the lonely people\nWhere do they all come from?\nAll the lonely people\nWhere do they all belong?",
 	["Cigarette Daydreams"] = "Did you stand there all alone?\nOh, I cannot explain what's going down\nI can see you standing next to me\nIn and out somewhere else right now\nYou sigh, look away\nI can see it clear as day\nClose your eyes, so afraid\nHide behind that baby face\nDo-do-do, do-do-do",
-	["Livin' Thing"] = "Sailin' away on a crest of a wave, it's like magic\nOh, rollin' and ridin' and slippin' and slidin', it's magic\nAnd you and your sweet desire\nYou took me, oh (higher and higher baby)\nIt's a livin' thing\nIt's a terrible thing to lose\nIt's a givin' thing\nWhat a terrible thing to lose\n(I'm takin' a dive!)\n(Dive!)",
+	["Livin Thing"] = "Sailin' away on a crest of a wave, it's like magic\nOh, rollin' and ridin' and slippin' and slidin', it's magic\nAnd you and your sweet desire\nYou took me, oh (higher and higher baby)\nIt's a livin' thing\nIt's a terrible thing to lose\nIt's a givin' thing\nWhat a terrible thing to lose\n(I'm takin' a dive!)\n(Dive!)",
 	["Take Me To Church"] = "My lover's got humour, she's the giggle at a funeral\nKnows everybody's disapproval\nThey should've worshipped her sooner\nIf the heavens ever did speak, she's the last true mouthpiece\nEvery Sunday's getting more bleak, a fresh poison each week\n\"We were born sick\"\nHeard them say it",
 	["Thats Life"] = "That's life (that's life)\nThat's what all the people say\nYou're riding high in April, shot down in May\nBut I know I'm gonna change that tune\nWhen I'm back on top, back on top in June\nI said that's life (that's life)\nAnd as funny as it may seem\nSome people get their kicks\nStomping on a dream\nBut I don't let it, let it get me down\nCause this fine old world, it keeps spinnin' around",
 	["Waiting"] = "I've been waiting a long time\nFor this moment to come, I'm\nDestined for anything at all\nDowntown, lights will be shining\nOn me, like in a diamond\nRing out under the midnight hour",
 	["Gilded Lily"] = "Now it's been long enough to talk about it\nI've started not to doubt it, just wrap my head around it\nI remember when you told me it's an everyday decision\nBut with my double vision, how was I supposed to see the way?\nHaven't I given enough, given enough?\nHaven't I given enough, given enough\nHaven't I given enough, given enough\nHaven't I given enough, given enough?",
-	["Don't You Forget About Me"] = "Won't you come see about me?\nI'll be alone, dancing, you know it, baby\nTell me your troubles and doubts\nGive them everything, inside and out and\nLove's strange, so real in the dark\nThink of the tender things that we were working on\nSlow change may pull us apart\nWhen the light gets into your heart, baby",
+	["Dont You Forget About Me"] = "Won't you come see about me?\nI'll be alone, dancing, you know it, baby\nTell me your troubles and doubts\nGive them everything, inside and out and\nLove's strange, so real in the dark\nThink of the tender things that we were working on\nSlow change may pull us apart\nWhen the light gets into your heart, baby",
 	["Boys Dont Cry"] = "I would say I'm sorry if I thought that it would\nChange your mind\nBut I know that this time\nI have said too much\nBeen too unkind\nI try to laugh about it\nCover it all up with lies\nI try to laugh about it\nHiding the tears in my eyes\n'Cause boys don't cry\nBoys don't cry",
 	["Lovefool"] = "Dear, I fear we're facing a problem\nYou love me no longer, I know\nAnd maybe there is nothing\nThat I can do to make you do\nMama tells me I shouldn't bother\nThat I ought to stick to another man\nA man that surely deserves me\nBut I think you do\nSo, I cry, and I pray and I beg",
 	["Cant Make Up My Mind"] = "My \"Gone Fishing\" alibi\nYou won't see me 'til Wednesday\nBut I'm fine\nNo, really, I'm fine\nLike a teenage Frankenstein\nMy head's a mess, but from the neck down\nI'm fine\nI'm actually fine",
@@ -65,6 +65,7 @@ local songs = {
 	["Linger"] = "If you, if you could return\nDon't let it burn, don't let it fade\nI'm sure, I'm not being rude\nBut it's just your attitude\nIt's tearing me apart\nAnd it's ruining everything\nI swore, I swore it would be true\nAnd honey, so did you\nSo why were you holding her hand?\nIs that the way we stand?\nWere you lying all the time?\nWas it just a game to you?",
 	["Creep"] = "When you were here before\nCouldn't look you in the eye\nYou're just like an angel\nYour skin makes me cry\nYou float like a feather\nIn a beautiful world\nI wish I was special\nYou're so ******' special\nBut I'm a creep\nI'm a weirdo\nWhat the hell am I doin' here?\nI don't belong here",
 	["Hell N Back"] = "Coudl you tell where my head was at when you found me?\nMe and you went to hell and back just to find peace\nMan, I thought I had everything, I was lonely\nNow you're my everything, I was lonely\nI mixed a lot of love with a lot of drugs, then I found you\nShe liked petty crimes, she had green eyes like Mountain Dew\nAnd where she go, I'll never know\nHer friends too\nI guess it's their loss 'cause they'll never know what we'll amount to",
+	["Fine"] = "Today has a way of scarring your eyes\nWith negative light, but it's a disguise\nI put on my shades and see through the lies\nThe convenient truth is\nLight is on the way, we'll be having a fun time\nIt's such a lovely day, we should pocket the sunshine\nAnd never give it back, even if there's a heat wave\nOr terrorist attack, it'll just be a close shave\nI know (I know)\nThat every bomb has a silver lining\nI know (I know)",
 }
 
 -- main vars
@@ -72,7 +73,7 @@ local char : Model = LoadAssets(17182500812):Get("Character")
 local char_hum : Humanoid = char:FindFirstChildOfClass("Humanoid")
 local char_hrp : Part = char:FindFirstChild("HumanoidRootPart")
 
-local intermission = 10
+local intermission = 30
 local current_time = intermission
 
 -- services
@@ -118,6 +119,8 @@ local new_songs = {}
 for k in pairs(songs) do
 	table.insert(new_songs, k)
 end
+
+print(#new_songs)
 
 while task.wait(1) do
 	current_time -= 1
