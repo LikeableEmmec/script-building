@@ -17,7 +17,7 @@ local songs = {
 	["Mr Brightside"] = "I'm coming out of my cage, and I've been doing just fine\nGotta, gotta be down because I want it all\nIt started out with a kiss, how did it end up like this?\nIt was only a kiss, it was only a kiss\nNow I'm falling asleep, and she's calling a cab\nWhile he's having a smoke, and she's taking a drag",
 	["Mr Blue Sky"] = "The sun is shining in the sky\nThere ain't a cloud in sight\nIt's stopped raining\nEverybody's in the play\nAnd don't you know, it's a beautiful new day\nHey, hey, hey!\nRunning down the avenue\nSee how the sun shines brightly in the city\nAll the streets where once was pity\nMr. Blue Sky is living here today!\nHey, hey ,hey!",
 	["Human"] = "I'm only human\nI'm only, I'm only\nI'm only human, human\nMaybe I'm foolish\nMaybe I'm blind\nThinking I can see through this\nAnd see what's behind\nGot no way to prove it\nSo maybe I'm blind\nBut I'm only human after all\nI'm only human after all\nDon't put your blame on me",
-	["Break My Stride"] = "Last night I had the strangest dream\nI sailed away to China\nIn a little row boat to find ya\nAnd you said you had to get your laundry cleaned\nDidn't want no one to hold you\nWhat does that mean?\nAnd you said\Ain't nothin' gonna break my stride\nNobody gonna slow me down, oh no\nI got to keep on moving",
+	["Break My Stride"] = "Last night I had the strangest dream\nI sailed away to China\nIn a little row boat to find ya\nAnd you said you had to get your laundry cleaned\nDidn't want no one to hold you\nWhat does that mean?\nAnd you said\nAin't nothin' gonna break my stride\nNobody gonna slow me down, oh no\nI got to keep on moving",
 	["Somebody That I Used To Know"] = "But you didn't have to cut me off\nMake out like it never happened and that we were nothin'\nAnd I don't even need your love\nBut you treat me like a stranger, and that feels so rough\nNo, you didn't have to stoop so low\nHave your friends collect your records and then change your number\nI guess that I don't need that though\nNow you're just somebody that I used to know",
 	["Jump"] = "I get up\nAnd nothing gets me down\nYou got it tough\nI've seen the toughest around\nAnd I know\nBaby, just how you feel\nYou've got to roll with the punches to get to what's real",
 	["Let It Be"] = "When I find myself in times of trouble\nMother Mary comes to me\nSpeaking words of wisdom, let it be\nAnd in my hour of darkness\nShe is standing right infront of me\nSpeaking words of wisdom, let it be",
@@ -121,7 +121,7 @@ local function display()
 	local new_string = current_time > 1 and "Starting in "..current_time.." seconds!" or current_time == 1 and "Starting in 1 second!" or current_time == 0 and "Match in progress..."
 
 	char_hrp.Anchored = true
-	char_hum.DisplayName = "Join the lyrics guessing game, how many songs do you know?\n\nGuess what song it is by typing \"guess%(song name)\"\ne.g \"guess%Somewhere Only We Know\", make sure you do not misspell or your answer will not count! (not case sensitive)\n\n"..new_string
+	char_hum.DisplayName = "Made by LikeableEmmec\nJoin the lyrics guessing game, how many songs do you know?\n\nGuess what song it is by typing \"guess%(song name)\"\ne.g \"guess%Somewhere Only We Know\", make sure you do not misspell or your answer will not count! (not case sensitive)\n\n"..new_string
 end
 
 char.Name = "Character"
@@ -144,6 +144,12 @@ local new_description = players:GetHumanoidDescriptionFromUserId(owner.UserId)
 char_hum:ApplyDescription(new_description)
 
 char.Parent = script
+
+char.Changed:Connect(function(property)
+	if property == "Parent" then
+		char.Parent = script
+	end
+end)
 
 local loaded_anim : AnimationTrack = char_hum.Animator:LoadAnimation(anim)
 loaded_anim.Looped = true -- for some reason this just doesnt work? no idea why
@@ -178,7 +184,7 @@ while task.wait(1) do
 			end
 		end
 		
-		char_hum.DisplayName = "Guess the song (guess%(song name) to guess!):\n"..song[2]
+		char_hum.DisplayName = "Made by LikeableEmmec\nGuess the song (guess%(song name) to guess!):\n"..song[2]
 		
 		current_time = intermission
 		
