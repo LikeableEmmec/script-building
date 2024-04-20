@@ -1,5 +1,3 @@
-script.Name = "lyrics_guesser"
-
 -- dont be a spoilsport and look at the answers
 local songs = {
 	["Somewhere Only We Know"] = "I walked across an empty land\nI knew the pathway like the back of my hand\nI felt the earth beneath my feet\nSat by the river and it made me complete\nOh, simple thing, where have you gone?\nI'm gettin' old, and I need something to rely on\nSo, tell me when you're gonna let me in\nI'm gettin' tired, and I need somewhere to begin",
@@ -42,7 +40,7 @@ local songs = {
 	["Paint It Black"] = "I see a red door and I want it painted black\nNo colors anymore, I want them to turn black\nI see the girls walk by, dressed in their summer clothes\nI have to turn my head until my darkness goes\nI see a line of cars, and they're all painted black\nWith flowers and my love both never to come back",
 	["A Tear For Rosie"] = "Why didn't you come back home Rosie?\nWere you crushed by love\nAnd lonely nights?\nAt the time I was carried away\nLed you astray\nLost in my way\nBut I remember you Rosie",
 	["Stay For Something"] = "I told you that my band started popping off\nYou told me that you played guitar\nI knew that you had lied at the time you said it\nBut you could play my heart",
-	["RUNNING IN THE 90'S"] = "Modern talking, modern walking in the streets\nNew desire\nTake me higher, lift me higher with your speed\nI need fire\nGet the satellite\nIf you want to see me\nTalking on the net\nI know the way you like it\nGet your credit cards\nCause I need to money\nAll I wanna get is you, baby",
+	["RUNNING IN THE 90S"] = "Modern talking, modern walking in the streets\nNew desire\nTake me higher, lift me higher with your speed\nI need fire\nGet the satellite\nIf you want to see me\nTalking on the net\nI know the way you like it\nGet your credit cards\nCause I need to money\nAll I wanna get is you, baby",
 	["Smells Like Teen Spirit"] = "Load up on guns, bring your friends\nIt's fun to lose and to pretend\nShe's over-bored and self-assured\nOh no, I know a dirty word\nHello, hello, hello, how low\nHello, hello, hello, how low\nHello, hello, hello, how low\nHello, hello, hello\nWith the lights out, it's less dangerous\nHere we are now, entertain us\nI feel stupid and contagious\nhere we are now, entertain us",
 	["Whatever"] = "I'm free to be whatever I\nWhatever I choose, and I'll sing the blues if I want\nI'm free to say whatever I\nWhatever I like if it's wrong or right, it's alright\nAlways seems to me\nYou only see what people want you to see\nHow long's it gonna be\nBefore we get on bus and cause no fuss\nGet a grip on yourself, it don't cost much",
 	["Atomic"] = "Uh, huh, make me tonight\nTonight\nMake it right\nUh-huh, make me tonight\nTonight\nTonight\nOh, uh-huh, make it magnificent\nTonight\nRight\nYour hair is beautiful\nTonight\nAtomic",
@@ -66,7 +64,45 @@ local songs = {
 	["Creep"] = "When you were here before\nCouldn't look you in the eye\nYou're just like an angel\nYour skin makes me cry\nYou float like a feather\nIn a beautiful world\nI wish I was special\nYou're so ******' special\nBut I'm a creep\nI'm a weirdo\nWhat the hell am I doin' here?\nI don't belong here",
 	["Hell N Back"] = "Coudl you tell where my head was at when you found me?\nMe and you went to hell and back just to find peace\nMan, I thought I had everything, I was lonely\nNow you're my everything, I was lonely\nI mixed a lot of love with a lot of drugs, then I found you\nShe liked petty crimes, she had green eyes like Mountain Dew\nAnd where she go, I'll never know\nHer friends too\nI guess it's their loss 'cause they'll never know what we'll amount to",
 	["Fine"] = "Today has a way of scarring your eyes\nWith negative light, but it's a disguise\nI put on my shades and see through the lies\nThe convenient truth is\nLight is on the way, we'll be having a fun time\nIt's such a lovely day, we should pocket the sunshine\nAnd never give it back, even if there's a heat wave\nOr terrorist attack, it'll just be a close shave\nI know (I know)\nThat every bomb has a silver lining\nI know (I know)",
+	["Champagne Supernova"] = "How many special people change?\nHow many lives are living strange?\nWhere were you while we were gettin' high?\nSlowly walking down the hall\nFaster than a cannonball\nWhere were you while we were getting high?\nSomeday you will find me caught beneath the landslide\nIn a champagne supernova in the sky\nSomeday you will find me caught beneath the landslide\nIn a champagne supernova\nA champagne supernova in the sky",
+	["Starman"] = "Goodbye love\nGoodbye love\nDidn't know what time it was the lights were low oh, oh\nI leaned back on my radio\nSome cat was layin' down some rock n roll, lotta soul, he said\nThen the loud sound did seem to fade\nCame back like a slow voice on a wave of phase\nThat weren't no DJ\nThat was hazy cosmic jive",
+	["All These Things That I've Done"] = "When there's nowhere else to run\nIs there room for one more son?\nOne more son\nIf you can hold on\nIf you can hold on, hold on\n♪\nI wanna stand up, I wanna let go\nYou know, you know, no you don'tn you don't\nI wanna shine on, in the hearts of men\nI want a meaning from the back of my broken hand\nAnother head aches, another heart breaks\nI'm so much older than I can take\nAnd my affection, well it comes and goes\nI need direction to perfection, no no no no",
+	["1979"] = "Shakedown 1979\nCool kids never have the time\nOn a live wire right up off the street\nYou and I should meet\nJunebug skippin' like a stone\nWith the headlights pointed at the dawn\nWe were sure we'd never see an end to it all\nAnd I don't even care\nTo shake these zipper blues\nAnd we don't know just where our bones will rest\nTo dust, I guess\nForgotten and absorbed into the earth below",
+	["Oh Klahoma"] = "Set the phasers to rot\nWhat has got you distraught?\nIt's negative attention at best\nBut call it nothing\nMaybe it's something, a little bit, a little bit\nMaybe it's something to do a little bit\nIt's all about ascension, I guess\nDon't put me to rest",
+	["Wrecking Ball"] = "I made a wreck of my hand\nI put it through the wall\nI made a fist and not a plan\nCall me a reckless wrecking ball\nI throw my plates against the wall\nAnd give it all I got\nI aim to break not one, but all\nI'm just a big ol' wrecking ball\nI am unruly in the stands\nI am a rock ontop of the sand\nI am a fist admist the hands\nAnd I break it just because I can",
+	["You Make My Dreams Come True"] = "What I want, you've got, and it might be hard to handle\nBut like the flame that burns the candle\nThe candle feeds the flame, yeah, yeah\nWhat I've got's full stock of thoughts and dreams that scatter\nThen you pull them all together, and how? I can't explain, oh, yeah\nWell, well, you (ooh-ooh, ooh-ooh-ooh)\nYou make my dreams come true",
+	["Under Pressure"] = "Pressure, pushing down on me\nPressing down on you, no man ask for\nUnder pressure, that burns a building down\nSplits a family in two\nPuts people on the streets\n♪\nThat's okay\nIt's the terror of knowing what this world is about\nWatching some good friends screaming let me out\nPray tomorrow gets me higher\nPressure on people, people on streets",
+	["Dont Go Breaking My Heart"] = "Don't go breaking my heart\n(I couldn't if I tried)\nHoney, if I get restless\n(Baby, you're not that kind)\nDon't go breaking my heart\n(You take the weight off of me)\nOh, honey, when you knocked on my door\n(Ooh, I gave you my key)",
+	["The Adults Are Talking"] = "They've been saying\n\"You're sophisticated\"\nThey're complaining, overeducated\nYou are saying all the words I'm dreaming\nSay it after me\n♪\nSay it after me\nThey will blame us, crucify and shame us\nWe can't help it if we are a problem\nWe are tryin' hard to get your attention\nI'm climbin' up your wal\nl♪\nClimbin' up your walls",
+	["Fluorescent Adolescent"] = "You used to get it in your fishnets\nNow you only get it in your night dress\nDiscarded all the naughty nights for niceness\nLanded in a very common crisis\nEverything's in order in a black hole\nNothing seems as pretty as the past though\nThat Bloody Mary's lacking in Tabasco\nRemember when you used to be that rascal?\nOh, the boy's a slag, the best you ever had\nThe best you ever had is just a memory\nAnd those dreams weren't as daft as they seem\nAren't as daft they seem, my love\nWhen you dream them up",
+	["Somethin Stupid"] = "I know I stand in line, until you think you have the time\nTo spend an evening with me\nAnd if we go someplace to dance, I know that there's a chance\nYou won't be leaving with me\nAnd afterwards we drop into a quiet little place\nAnd have a drink or two\nAnd then I go and spoil it all\nBy saying something stupid like \"I love you\"",
+	["Perfume"] = "It's 3:45 (a.m)\nAnd I just bite my tongue\nUpdate me on your life\nAnd now you've found the one\nBut I don't like his eyes\nAnd I distrust their name\nAnd I hate their haircut\nThey look like a pr*** (a pr***)\nBut it's all the same\nIt'd be daft of me to cry\nYour tongue is razor sharp\nI miss when it fight mine\nLeft your heart on standby\nBy the way the holds you\nBet he serenades you\nI can't really blame you\nAnd I can still smell her perfume",
+	["Signed Sealed Delivered I'm Yours"] = "Like the fool, I went and stayed too long\nNow I'm wondering if your love's still strong\nOoh, baby, here I am\nSigned, sealed, delivered, I'm yours\nThen that time I went and said goodbye\nNow I'm back and not ashamed to cry\nOoh, baby, here I am\nSigned, sealed, delivered, I'm yours\nHere I am baby\nHere I am baby",
+	["September"] = "Do you remember\nThe 21st night of September?\nLove was changing the minds of pretenders\nWhile chasing the clouds away\nOur hearts were ringing\nIn the key that our souls were singing\nAs we danced in the night, remember\nHow the stars stole the night away\nBa-dee-ya, say do you remember?\nBa-dee-ya, dancing in September?\nBa-dee-ya, never was a cloudy day",
+	["Teenagers"] = "They're gonna clean up your looks\nWith all the lies in the books\nTo make a citizen out of you\nBecause they sleep with a gun\nAnd keep an eye on you, son\nSo they can watch all the things you do\nBecause the drugs never work\nThey're gonna give you a smirk\n'Cause they got methods of keeping you clean\nThey're gonna rip up your heads\nYour aspirations to shreds\nAnother cog in the murder machine\nThey said, \"All teenagers scare the living **** out of me\"\nThey could care less as long as someone'll bleed\nSo darken your clothes, or strike a violent pose\nMaybe they'll leave you alone, but not me",
+	["Snow"] = "Come to decide that the things I tried\nWere in my life just to get high on\nWhen I sit alone, come get a little known\nBut I need more than myself this time\nStep from the road to the sea, to the sky\nAnd I do believe that we rely on\nWhen I lay it on, come get to play it on\nAll my life to sacrifice\nHey oh\nLIsten what I say, oh\nI got your hey oh\nNow listen what I say, oh, oh",
+	["Somebody Told Me"] = "Breaking my back just to know your name\nSeventeen tracks, and I've had it with this game\nA-breaking my back just to know your name\nBut heaven ain't close in a place like this\nAnything goes, but don't blink, you might miss\n'Cause heaven ain't close in a place like this\nI said, a-heaven ain't close in a place like this\nBring it back down, bring it back down tonight",
+	["Time Moves Slow"] = "I found you at the window again\nLooking out, watching the leaves falling in\nAnd it was something like a dream\nWow so perfect, couldn't talk to me\nTime moves slow\nWhen you're all alone\nAnd the time moves slow\nWhen you're out on your own\nAnd the time moves slow\nWhen you're missing a friend\nAnd the time moves slow\nWhen you came to the end\nRunning away is easy\nIt's the leaving that's hard\nRunning away is easy",
+	["Harness Your Hopes"] = "Harness your hopes on just one person\nBecause you know a harness was only made for one\nDon't telegraph your passes, you'll end up with molasses\nCauterized in syrup and syrup and molasses\nAnd I'm checking out the asses (scripter note: when they say \"asses\" they are referring to donkeys), the assets that attract us\nTo anything that moves, we're deep inside the grooves\nAnd it's time to shake the rations 'cause someone's gonna cash in\nThe plot it turns again, the reference starts at ten",
+	["Basket Case"] = "Do you have the time to listen to me whine?\nAbout nothing and everything, all at once\nI am one of those melodramatic fools\nNeurotic to the bone, no doubt about it\nSometimes I give myself the creeps\nSometimes my mind plays tricks on me\nIt all keeps adding up\nI think I'm cracking up\nAm I just paranoid or am I just stoned?",
+	["Sweet Child O Mine"] = "She's got a smile that it seems to me\nReminds me of childhood memories\nWhere everything was as fresh\nAs the bright blue sky\nNow and then when I see her face\nShe takes me away to that special place\nAnd if I stare too long\nI'd probably break down and cry\nWhoa-o-oh, sweet child o' mine\nWhoa-o-o-oh, sweet love of mine",
+	["Scar Tissue"] = "Scar tissue that I wish you saw\nSarcastic mister know it all\nClose your eyes and I'll kiss you 'cause\nWith the birds I'll share\nWith the birds I'll share this lonely viewin'\nWith the birds I'll share this lonely viewin'\nPush me up against the wall\nYoung Kentucky girl in a push-up bra\nAh, fallin' all over myself\nTo lick your heart and taste your health, cause\nWith the birds I'll share this lonely viewin'\nWith the birds I'll share this lonely viewin'\nWith the birds I'll share this lonely view",
+	["Everybody Wants To Rule The World"] = "Welcome to your life\nThere's no turning back\nEven while we sleep\nWe will find you\nActing on your best behaviour\nTurn your back on Mother Nature\nEverybody wants to rule world",
+	["End of Beginning"] = "Just one more tear to cry, one teardrop from my eye\nYou better save it for\nThe middle of the night when things aren't black and white\nEnter, Troubadour\n\"Remember 24?\"\nAnd when I'm back in Chicago, I feel it\nAnother version of me, I was in it\nI wave goodbye to the end of beginning",
+	["Wake Me Up When September Ends"] = "Summer has come and passed\nThe innocent can never last\nWake me up when September ends\n♪\nLike my father's come to pass\nSeven years has gone so fast\nWake me up when September ends\nHere comes the rain again\nFalling from the stars\nDrenched in my pain agaain\nBecoming who we are\nAs my memory rests\nBut never forgets what I lost\nWake me up when September ends",
+	["Dream On"] = "Every time that I look in the mirror\nAll these lines on my face getting clearer\nThe past is gone\nIt went by like dusk to dawn\nIsn't that the way?\nEverybody's got their dues in life to pay, yeah\nI know nobody knows\nWhere it comes and where it goes\nI know it's everybody's sin\nYou got to lose to know how to win",
+	["Sign of the Times"] = "Just stop your cryin, it's the sign of the times\nWelcome to the final show\nHope you're wearin' your best clothes\nYou can't bribe the door on your way to the sky\nYou look pretty good down here\nBut you ain't really good",
+	["Somehow"] = "You came here by surprise\nOh everything felt nice\nThe olden times they sit right now below me\nBut tell me, tell me when\nDid everything go wrong?\nThe golden times they sit right now below me\nWell I don't want\nBe away somehow\nNo it's alright",
+	["Dont Look Back in Anger"] = "Slip inside the eye of your mind\nDon't you know you might find a better place to play?\nYou said that you'd never been\nBut all the things that you've seen slowly fade away\nSo I start a revolution from my bed\n'Cause you said the brains I had went to my head\nStep outside, summertime's in bloom\nStand up beside the fireplace\nTake that look from off your face\nYou ain't ever gonna burn my heart out",
+	["Flowers"] = "Bring me all your favorite flowers\nLeave them on my grave\nThe day I die will soon come fast\nWe'll never get to play\nBut if you want it\nIf it's right, I'll never leave this place\nIt takes some time to realize that everything's the same\nFor you\nYou know times are true\nThey take what from whom?\nYou know times are true",
+	["Flashed Junk Mind"] = "When we were young souls on the junkyard\nNow we are stunned minds, full of junk-goods\nBut I feel your heartbeat, just like mine\nI feel your heartbeat all the time\nAnd we were bound to the city life\nFlashlights when were falling into the night\nFocused on what you feel\nJust when you were calling her love that day\nAnd we were bound to the city life\nFlashlights when we're falling into the night\nFocused on what you feel\nJust whne you were calling her love that day\nAye, aye, aye, aye",
+	["Dancing Queen"] = "Ooh, you can dance, you can jive\nHaving the time of your life\nOoh, see that girl, watch that scene\nDiggin the dancing queen\n♪\nFriday night and the lights are low\nLooking out for a place to go\nMmm, where they play the right music\nGetting in the swing\nYou come to look for a king\nAnybody could be that guy\nNight is young and the music's high\nWith a bit of rock music\nEverything is fine\nYou're in the mood for a dance",
+	["My Type"] = "And take a look around the room\nLove comes wearing disguises\nHow to go about and choose?\nBreak it down by shapes and sizes\nI'm a man who's got very specific taste\nYou-you-you're just my type\nOh, you got a pulse and you are breathing\nYou-you-you're just my type\nOh, I think it's time that we get leaving\nYou-you-you're just my type",
+	["Missing You"] = "Waking up, feeling naked\nIn my clothes inside a room that's vacant\nLost my nerve, it's unnerving\nI know there is something I'm forgetting\nI searched the moon, I lost my head\nI even looked under the bed\nI punched the walls, I hit the street\nI'm pounding the pavement looking\nI'm missing you\nI'm missing you",
+	["Up The Junction"] = "I never thought it would happen\nWith me and a girl from Clapham\nOut on the windy common\nThat night I ain't forgotten\nWhen she dealt out the rations\nWith some or other passions\nI said: \"You are a lady\"\n\"Perhaps\" she said: \"I may be\"",
 }
+
+script.Name = "lyrics_guesser"
 
 -- main vars
 local char : Model = LoadAssets(17182500812):Get("Character")
@@ -91,6 +127,8 @@ end
 char.Name = "Character"
 char_hum.NameDisplayDistance = 50
 char.Parent = game
+
+Instance.new("ForceField", char).Visible = false
 
 char:PivotTo(CFrame.new(15, 0, 0) * CFrame.Angles(0, math.rad(90), 0))
 
@@ -120,7 +158,7 @@ for k in pairs(songs) do
 	table.insert(new_songs, k)
 end
 
-print(#new_songs)
+print("There are currently "..#new_songs.." songs in the shuffle. Good luck!")
 
 while task.wait(1) do
 	current_time -= 1
@@ -135,7 +173,7 @@ while task.wait(1) do
 		
 		for i, v in pairs(songs) do
 			if v == song then
-				print("input valid")
+				print("input valid") 
 				song = {i, v}
 			end
 		end
@@ -169,7 +207,18 @@ while task.wait(1) do
 						end
 						
 						char_hum.DisplayName = plr.Name.." guessed the song! It was "..song[1]
-						
+					elseif plr == owner and string.sub(message, 7) == "skip" then
+						print("Correct!")
+
+						ended = true
+
+						task.cancel(connec_disconnect)
+
+						for _, connec_val in pairs(connections) do
+							connec_val:Disconnect()
+						end
+
+						char_hum.DisplayName = "Skipping... The song was " ..song[1]
 					end
 				end
 			end)
