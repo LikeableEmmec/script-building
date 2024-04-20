@@ -1,0 +1,561 @@
+-- please, insult me for this code
+
+-- non-script builder compatibility i found from @comsurg on roblox, their github is github.com/fofl12
+local owner = getfenv().owner ~= nil and getfenv().owner or nil
+
+local og_bounds = 25
+local bounds = og_bounds
+local walk_speed = 0.1
+local shrink_speed = 5
+local shrink_size = 0.5
+local count = 11
+
+local reset_loop = false
+local restart_while_loop = false
+local paused = false
+
+local picked_a_part = {}
+
+local zone = Instance.new("Part")
+zone.Name = "Zone"
+zone.CanCollide = false
+zone.CanTouch = false
+zone.CanQuery = false
+zone.Anchored = true
+--zone.BrickColor = BrickColor.new("Baby blue")
+zone.Size = Vector3.new((bounds*2)+1, 0.5, (bounds*2)+1)
+zone.Position = Vector3.new(0,0.25,0)
+zone.Material = Enum.Material.SmoothPlastic
+zone.Reflectance = 0.25
+
+local sound = Instance.new("Sound")
+sound.RollOffMaxDistance = 80
+sound.SoundId = "rbxassetid://12466606686"
+sound.Parent = zone
+
+local zone_texture = Instance.new("Texture")
+zone_texture.Texture = "rbxassetid://1369654266"
+zone_texture.Color3 = Color3.new(0,0,0)
+zone_texture.Transparency = 0.75
+zone_texture.Face = Enum.NormalId.Top
+zone_texture.Parent = zone
+
+zone.Parent = script
+
+local function shrink(new_size)
+	bounds = new_size
+	zone.Size = Vector3.new((bounds*2)+1, zone.Size.Y, (bounds*2)+1)
+	for _, unit in pairs(script:GetChildren()) do
+		if unit.Name ~= "ExplosionPart" and unit.Name ~= "Zone" then
+			print(bounds)
+			unit:SetAttribute("Movable",true)
+			unit.Position = Vector3.new(math.clamp(unit.Position.X, -bounds, bounds), unit.Position.Y, math.clamp(unit.Position.Z, -bounds, bounds))
+			task.wait()
+			unit:SetAttribute("Movable",nil)
+		end
+	end
+end
+
+local function explode(obj_1, obj_2)
+	obj_1:SetAttribute("Detonating",true)
+	obj_2:SetAttribute("Detonating",true)
+	
+	local explode_part = Instance.new("Part")
+	explode_part.Name = "ExplosionPart"
+	explode_part.Position = (obj_1.Position + obj_2.Position)/2 -- average position
+	explode_part.Size = Vector3.zero
+	explode_part.Anchored = true
+	explode_part.Parent = script
+	
+	local explode_sound = Instance.new("Sound")
+	explode_sound.Name = "ExplosionSound"
+	explode_sound.SoundId = "rbxassetid://8304134593"
+	explode_sound.RollOffMaxDistance = 250
+	explode_sound.RollOffMinDistance = 10
+	explode_sound.RollOffMode = Enum.RollOffMode.LinearSquare
+	explode_sound.Volume = 5
+	explode_sound.Pitch = 1
+	explode_sound.Parent = explode_part
+	
+	obj_1:Destroy()
+	obj_2:Destroy()
+	
+	explode_sound:Play()
+	
+	local explosion = Instance.new("Explosion")
+	explosion.DestroyJointRadiusPercent = 0
+	explosion.BlastPressure = 0
+	explosion.Position = explode_part.Position
+	explosion.Parent = explode_part
+	
+	local real_amount = 0
+	
+	for _, v in pairs(script:GetChildren()) do
+		if v.Name ~= "ExplosionPart" and v.Name ~= "Zone" then
+			real_amount += 1
+		end
+	end
+	
+	if real_amount > 1 then
+		local billboard_gui = Instance.new("BillboardGui")
+		billboard_gui.Name = "PlayerGUI"
+		billboard_gui.LightInfluence = 0
+		billboard_gui.Brightness = 2
+		billboard_gui.Size = UDim2.fromScale(5, 1)
+		billboard_gui.ExtentsOffsetWorldSpace = Vector3.new(0, 0, 0)
+
+		local text_label = Instance.new("TextLabel")
+		text_label.Name = "PlayerLabel"
+		text_label.Size = UDim2.fromScale(1,1)
+		text_label.TextColor3 = Color3.new(1,0,0)
+		text_label.TextTransparency = 1
+		text_label.Text = real_amount.." remain..."
+		text_label.FontFace = Font.new("rbxasset://fonts/families/PressStart2P.json",Enum.FontWeight.Regular,Enum.FontStyle.Normal)
+		text_label.TextScaled = true
+		text_label.BackgroundTransparency = 1
+		text_label.Parent = billboard_gui
+
+		billboard_gui.Parent = explode_part
+		
+		--printf('<font color="rgb(255, 0, 0)">'..real_amount..' remain...</font>')
+		
+		game:GetService("TweenService"):Create(explode_part, TweenInfo.new(2.5), {Position = explode_part.Position + Vector3.new(0, 5, 0)}):Play()
+		game:GetService("TweenService"):Create(text_label, TweenInfo.new(2.5), {TextTransparency = 0}):Play()
+		
+		task.wait(5)
+		
+		game:GetService("TweenService"):Create(text_label, TweenInfo.new(2.5), {TextTransparency = 1}):Play()
+		
+		task.wait(2.5)
+		
+		explode_part:Destroy()
+	end
+	
+	if real_amount == 1 then
+		game_over = true
+	end
+end
+
+local start = false
+
+local function execute_game()
+	game_over = false
+	
+	for i = 1, count do
+		local instance = Instance.new("Part")
+		instance.Archivable = false
+		instance.Name = i
+		instance.Position = Vector3.new(math.random(-bounds,bounds), i, math.random(-bounds,bounds))
+		instance.Size = Vector3.one
+		instance.Anchored = true
+		print(instance.TopSurface, instance.BottomSurface)
+		instance.Parent = script
+		
+		local click_detector = Instance.new("ClickDetector")
+		click_detector.Parent = instance
+		
+		local delay_func = nil
+		
+		local curr_color = instance.BrickColor
+		
+		click_detector.MouseClick:Connect(function(click_plr)
+			if not table.find(picked_a_part, click_plr) and instance.BrickColor == BrickColor.new("Medium stone grey") then
+				table.insert(picked_a_part, click_plr)
+
+				instance:SetAttribute("JustClicked", true)
+				if delay_func then
+					task.cancel(delay_func)
+				end
+				
+				instance.BrickColor = BrickColor.random()
+				curr_color = instance.BrickColor
+				
+				local billboard_gui = Instance.new("BillboardGui")
+				billboard_gui:SetAttribute("PlayerSelected", click_plr.Name)
+				billboard_gui.Name = "PlayerGUI"
+				billboard_gui.LightInfluence = 0
+				billboard_gui.Brightness = 2
+				billboard_gui.Size = UDim2.fromScale(5, 1)
+				billboard_gui.ExtentsOffsetWorldSpace = Vector3.new(0, 5, 0)
+
+				local text_label = Instance.new("TextLabel")
+				text_label.Name = "PlayerLabel"
+				text_label.Size = UDim2.fromScale(1,1)
+				text_label.TextColor3 = instance.Color
+				text_label.Text = click_plr.DisplayName ~= click_plr.Name and click_plr.DisplayName.." (@"..click_plr.Name..")".."'s gambled part" or click_plr.Name.."'s gambled part"
+				text_label.FontFace = Font.new("rbxasset://fonts/families/PressStart2P.json",Enum.FontWeight.Regular,Enum.FontStyle.Normal)
+				text_label.TextScaled = true
+				text_label.BackgroundTransparency = 1
+				text_label.Parent = billboard_gui
+
+				billboard_gui.Parent = instance
+				
+				instance:SetAttribute("JustClicked",nil)
+			end
+		end)
+		
+		--instance:GetPropertyChangedSignal("BrickColor"):Connect(function()
+		--	if start or click_detector and not instance:GetAttribute("JustClicked") then
+		--		instance.BrickColor = curr_color
+		--	end
+		--end)
+		
+		--instance:GetPropertyChangedSignal("Size"):Connect(function()
+		--	instance.Size = Vector3.one
+		--end)
+		
+		--instance:GetPropertyChangedSignal("Anchored"):Connect(function()
+		--	instance.Anchored = true
+		--end)
+		
+		--instance:GetPropertyChangedSignal("Orientation"):Connect(function()
+		--	instance.Orientation = Vector3.new(0,0,0)
+		--end)
+		
+		--instance:GetPropertyChangedSignal("Transparency"):Connect(function()
+		--	instance.Transparency = 0
+		--end)
+		
+		--instance:GetPropertyChangedSignal("Reflectance"):Connect(function()
+		--	instance.Reflectance = 0
+		--end)
+		
+		--instance:GetPropertyChangedSignal("Parent"):Connect(function()
+		--	if instance:GetAttribute("Detonating") then return end
+		--	print("changed parent")
+		--	task.wait()
+		--	instance.Parent = script
+		--end)
+		
+		--instance:GetPropertyChangedSignal("Archivable"):Connect(function()
+		--	instance.Archivable = false
+		--end)
+		
+		--instance:GetPropertyChangedSignal("Material"):Connect(function()
+		--	instance.Material = Enum.Material.Plastic
+		--end)
+		
+		--instance:GetPropertyChangedSignal("Shape"):Connect(function()
+		--	instance.Shape = Enum.PartType.Block
+		--end)
+		
+		instance.ChildAdded:Connect(function(child_instance)
+			if instance:GetAttribute("JustClicked") then return end
+			print("child detected, must exterminate")
+			task.wait()
+
+			child_instance:Destroy()
+		end)
+		
+		local temp_instance = instance:Clone()
+		
+		instance.Changed:Connect(function(property)
+			temp_instance = instance:Clone()
+			if property == "Shape" then
+				instance.Shape = Enum.PartType.Block
+			elseif property == "Material" then
+				instance.Material = Enum.Material.Plastic
+			elseif property == "Archivable" then
+				instance.Archivable = false
+			elseif property == "Parent" then
+				if instance:GetAttribute("Detonating") then return end
+				print("changed parent")
+				task.wait()
+				instance.Parent = script
+			elseif string.match(property, "Surface") then
+				instance.TopSurface = Enum.SurfaceType.Studs
+				instance.LeftSurface = Enum.SurfaceType.Smooth
+				instance.FrontSurface = Enum.SurfaceType.Smooth
+				instance.BottomSurface = Enum.SurfaceType.Inlet
+				instance.BackSurface = Enum.SurfaceType.Smooth
+				instance.RightSurface = Enum.SurfaceType.Smooth
+			elseif property == "Reflectance" then
+				instance.Reflectance = 0
+			elseif property == "Transparency" then
+				instance.Transparency = 0
+			elseif property == "Orientation" then
+				instance.Orientation = Vector3.new(0,0,0)
+			elseif property == "Anchored" then
+				instance.Anchored = true
+			elseif property == "Size" then
+				instance.Size = Vector3.one
+			elseif property == "Color" then
+				if start or click_detector and not instance:GetAttribute("JustClicked") then
+					instance.BrickColor = curr_color
+				end
+			end
+		end)
+		
+		instance.Destroying:Connect(function()
+			print("destroying")
+			if not instance:GetAttribute("Detonating") then
+				temp_instance.Parent = script
+				temp_instance = instance
+			end
+		end)
+		
+		local last_pos = instance.Position
+		
+		task.spawn(function()
+			while task.wait() do
+				if instance:GetAttribute("Movable") then return end
+				instance.Position = last_pos
+			end
+		end)
+		
+		task.spawn(function()
+			repeat task.wait() until start
+			
+			click_detector:Destroy()
+			
+			task.spawn(function()
+				repeat
+					task.wait()
+					if paused then
+						continue
+					end
+					instance.Position -= Vector3.new(0, 1, 0)
+					last_pos = instance.Position
+				until instance.Position.Y <= 0.5
+				instance.Position += Vector3.new(0, (0.5 - instance.Position.Y) + zone.Size.Y, 0)
+				last_pos = instance.Position
+			end)
+			
+			--game_over = false
+			restart_while_loop = false
+
+			while task.wait() do
+				if game_over or restart_while_loop then
+					print("ended", game_over, restart_while_loop)
+					break
+				end
+
+				--local x_move = math.random(-1, 1)
+				--instance.Position += Vector3.new(x_move, 0, 0)
+
+				--if instance.Position.X > bounds or instance.Position.X < -bounds then
+				--	instance.Position -= Vector3.new(x_move, 0, 0)
+				--end
+
+				--local z_move = math.random(-1, 1)
+				--instance.Position += Vector3.new(0, 0, z_move)
+
+				--if instance.Position.Z > bounds or instance.Position.Z < -bounds then
+				--	instance.Position -= Vector3.new(0, 0, z_move)
+				--end
+				
+				instance.Position += Vector3.new(math.random(-1, 1), 0, math.random(-1, 1))
+				instance.Position = Vector3.new(math.clamp(instance.Position.X, -bounds, bounds), instance.Position.Y, math.clamp(instance.Position.Z, -bounds, bounds))
+				last_pos = instance.Position
+
+				local wait_time = 0
+
+				repeat
+					for _, hit_object in pairs(instance:GetTouchingParts()) do
+						if hit_object.Name ~= "ExplosionPart" and hit_object.Parent == instance.Parent then
+							explode(instance, hit_object)
+							break
+						end
+					end
+					wait_time += task.wait()
+					if reset_loop then
+						reset_loop = false
+						break
+					end
+				until wait_time > walk_speed
+			end
+		end)
+	end
+end
+
+local targetting_script = NLS([[
+task.wait()
+
+local remote_target = script.get_target
+
+remote_target.OnClientInvoke = function()
+	return owner:GetMouse().Target
+end
+]],nil)
+
+local get_target = Instance.new("RemoteFunction")
+get_target.Name = "get_target"
+get_target.Parent = targetting_script
+
+local paused_bounds = shrink_speed
+local paused_speed = walk_speed
+
+if owner then
+	owner.Chatted:Connect(function(msg)
+		if msg == "/start" then
+			start = true
+		elseif string.split(msg," ")[1] == "/delete" --[[and string.split(msg, " ")[2] and string.split(msg, " ")[3] and string.split(msg, " ")[4]--]] then
+			local target = get_target:InvokeClient(owner)
+			
+			if target and target.Parent == script then
+				target:Destroy()
+				--local target_highlight = Instance.new("Highlight")
+				--target_highlight.FillColor = Color3.fromRGB(string.split(msg, " ")[2], string.split(msg, " ")[3], string.split(msg, " ")[4])
+				--target_highlight.FillTransparency = 0
+				--target_highlight.OutlineTransparency = 0
+				--target_highlight.Parent = target
+			else
+				warn("Target is nil or is not a member of part system")
+			end
+		elseif string.split(msg, " ")[1]  == "/speed" and tonumber(string.split(msg, " ")[2]) then
+			walk_speed = tonumber(string.split(msg, " ")[2]) / 10
+			paused_speed = walk_speed
+			reset_loop = true
+		elseif string.split(msg, " ")[1]  == "/shrink_speed" and tonumber(string.split(msg, " ")[2]) then
+			shrink_speed = tonumber(string.split(msg, " ")[2]) * 5
+			paused_bounds = shrink_speed
+		elseif string.split(msg, " ")[1]  == "/shrink_size" and tonumber(string.split(msg, " ")[2]) then
+			shrink_size = tonumber(string.split(msg, " ")[2]) / 2
+			shrink(shrink_size)
+		elseif string.split(msg, " ")[1]  == "/zone_size" and tonumber(string.split(msg, " ")[2]) then
+			bounds = tonumber(string.split(msg, " ")[2])
+			shrink(bounds)
+		elseif string.split(msg, " ")[1]  == "/count" and tonumber(string.split(msg, " ")[2]) then
+			count = tonumber(string.split(msg, " ")[2])
+		elseif string.split(msg, " ")[1] == "/reset" then
+			table.clear(picked_a_part)
+			game_over = false
+			restart_while_loop = true
+			bounds = og_bounds
+			zone.Size = Vector3.new((bounds*2), zone.Size.Y, (bounds*2))
+			for _, obj in pairs(script:GetChildren()) do
+				if tonumber(obj.Name) then
+					obj:SetAttribute("Detonating",true)
+					obj:Destroy()
+				end
+			end
+			execute_game()
+		elseif string.split(msg, " ")[1] == "/full_reset" then
+			walk_speed = 0.1
+			shrink_speed = 5
+			shrink_size = 0.5
+			count = 11
+			table.clear(picked_a_part)
+			game_over = false
+			restart_while_loop = true
+			bounds = og_bounds
+			zone.Size = Vector3.new((bounds*2), zone.Size.Y, (bounds*2))
+			for _, obj in pairs(script:GetChildren()) do
+				if tonumber(obj.Name) then
+					obj:SetAttribute("Detonating",true)
+					obj:Destroy()
+				end
+			end
+			execute_game()
+		elseif string.split(msg, " ")[1] == "/pause" then
+			paused = true
+			walk_speed = math.huge
+			shrink_speed = math.huge
+		elseif string.split(msg, " ")[1] == "/resume" then
+			paused = false
+			walk_speed = paused_speed
+			shrink_speed = paused_bounds
+		elseif string.split(msg, " ")[1] == "/shuffle" then
+			for _, unit in pairs(script:GetChildren()) do
+				if unit.Name ~= "ExplosionPart" and unit.Name ~= "Zone" then
+					print(bounds)
+					unit:SetAttribute("Movable",true)
+					unit.Position = Vector3.new(math.random(-bounds,bounds), unit.Position.Y, math.random(-bounds,bounds))
+					task.wait()
+					unit:SetAttribute("Movable",nil)
+				end
+			end
+		end
+	end)
+end
+
+local function shrink_border()
+	repeat task.wait() until start
+
+	sound.Volume = 0
+	sound.TimePosition = 60.6
+	sound:Play()
+
+	game:GetService("TweenService"):Create(sound, TweenInfo.new(.5), {Volume = .5}):Play()
+	
+	local break_main = false
+	
+	while task.wait() do
+		if break_main then break_main = false break end
+		
+		local new_size = bounds - shrink_size
+		if new_size <= 0 then
+			new_size = 0.000000001
+		end
+		shrink(new_size)
+		
+		local shrink_timer = 0
+		
+		repeat
+			shrink_timer += task.wait()
+			if game_over or restart_while_loop then
+				restart_while_loop = false
+				start = false
+				break_main = true
+				sound:Stop()
+				task.spawn(shrink_border)
+				break
+			end
+		until shrink_timer >= shrink_speed
+	end
+end
+
+task.spawn(shrink_border)
+execute_game()
+
+function wait_for_game_over()
+	repeat task.wait() until game_over
+	
+	print("game_ended")
+	
+	local winning_part = nil
+
+	for _, part in pairs(script:GetChildren()) do
+		if part.Name ~= "ExplosionPart" and part.Name ~= "Zone" then
+			winning_part = part
+			break
+		end
+	end
+
+	if winning_part then
+		
+		winning_part:SetAttribute("JustClicked",true)
+		
+		local billboard_gui = Instance.new("BillboardGui")
+		billboard_gui.Name = "WinnerBillboard"
+		billboard_gui.LightInfluence = 0
+		billboard_gui.Brightness = 2
+		billboard_gui.Size = UDim2.fromScale(5, 1)
+		billboard_gui.ExtentsOffsetWorldSpace = Vector3.new(0, 5, 0)
+
+		local text_label = Instance.new("TextLabel")
+		text_label.Name = "WinnerLabel"
+		text_label.Size = UDim2.fromScale(1,1)
+		text_label.TextColor3 = Color3.new(1,1,0)
+		text_label.Text = "Winner!"
+		text_label.FontFace = Font.new("rbxasset://fonts/families/PressStart2P.json",Enum.FontWeight.Regular,Enum.FontStyle.Normal)
+		text_label.TextScaled = true
+		text_label.BackgroundTransparency = 1
+		text_label.Parent = billboard_gui
+		
+		if winning_part:FindFirstChild("PlayerGUI") then
+			text_label.Text = winning_part:FindFirstChild("PlayerGUI"):GetAttribute("PlayerSelected").." is the winner!"
+			winning_part:FindFirstChild("PlayerGUI"):Destroy()
+		end
+		
+		billboard_gui.Parent = winning_part
+	else
+		warn("erm nobody won")
+	end
+	
+	repeat task.wait() until not game_over
+	
+	wait_for_game_over()
+end
+
+wait_for_game_over()
