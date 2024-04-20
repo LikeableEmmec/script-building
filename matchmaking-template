@@ -1,0 +1,125 @@
+script.Name = "matchmaking"
+
+-- main vars
+local char : Model = LoadAssets(17182500812):Get("Character")
+local char_hum : Humanoid = char:FindFirstChildOfClass("Humanoid")
+local char_hrp : Part = char:FindFirstChild("HumanoidRootPart")
+
+local intermission = 30
+local current_time = intermission
+
+local players_joined = {}
+local auto_insert = {}
+
+local keyword = "matchmake"
+
+-- services
+local players = game:GetService("Players")
+
+-- main
+
+local function display()
+	local new_string
+	if #players_joined < 2 then
+		new_string = "Not enough players! 2 players required."
+	else
+		new_string = current_time > 1 and "Starting in "..current_time.." seconds!" or current_time == 1 and "Starting in 1 second!" or current_time == 0 and "Match in progress..."
+	end
+
+	char_hrp.Anchored = true
+	char_hum.DisplayName = "(Created by LikeableEmmec)\nWelcome! Join the matchmaking test!\njoin%"..keyword.." to join, auto%"..keyword.." to auto-match every competition,\nleave%"..keyword.." to stop participating entirely (cancels auto-match and cancels join%"..keyword..")\n"..new_string
+end
+
+for _, plr in pairs(players:GetPlayers()) do
+	plr.Chatted:Connect(function(message)
+		if message == "join%"..keyword then
+			if not table.find(players_joined, plr) then
+				printf(plr.Name.." wants to participate")
+				table.insert(players_joined, plr)
+			end
+		elseif message == "auto%"..keyword then
+			if not table.find(auto_insert, plr) then
+				if not table.find(players_joined, plr) then
+					table.insert(players_joined, plr)
+				end
+				printf(plr.Name.." wants to auto-match")
+				table.insert(auto_insert, plr)
+			end
+		elseif message == "leave%"..keyword then
+			printf(plr.Name.. "wants to leave participation.")
+			if table.find(players_joined, plr) then
+				table.remove(players_joined, table.find(players_joined, plr))
+			end
+
+			if table.find(auto_insert, plr) then
+				table.remove(auto_insert, table.find(auto_insert, plr))
+			end
+		end
+	end)
+end
+
+char.Name = "Character"
+char:PivotTo(CFrame.new(15, 0, 0) * CFrame.Angles(0, math.rad(90), 0))
+char.Parent = game
+
+display()
+
+local anim = Instance.new("Animation")
+anim.AnimationId = "rbxassetid://33796059"
+--anim.AnimationId = "rbxassetid://136801964"
+anim.Name = "dance"
+anim.Parent = char
+
+local new_description = players:GetHumanoidDescriptionFromUserId(owner.UserId)
+char_hum:ApplyDescription(new_description)
+
+char.Parent = script
+
+local loaded_anim : AnimationTrack = char_hum.Animator:LoadAnimation(anim)
+loaded_anim:Play()
+
+char_hum.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
+
+repeat task.wait(1) until #players_joined >= 2
+
+while task.wait(1) do
+	if #players_joined < 2 then
+		repeat display() task.wait(1) until #players_joined >= 2
+		current_time = intermission
+	end
+	current_time -= 1
+
+	display()
+
+	if current_time <= 0 then
+		for i, v in ipairs(players_joined) do
+
+			if table.find(auto_insert, v) then
+				print(v.Name.." is being re-added because they enabled auto-matching.")
+
+				if not table.find(players_joined, v) then
+					table.insert(players_joined, v)
+				end
+			else
+				print(v.Name.." is being removed because they did not enable auto-matching.")
+				table.remove(players_joined, i)
+			end
+
+		end
+
+		--if #players_joined < 2 then
+		--	display()
+		--	current_time = intermission
+
+		--	task.wait(3)
+
+		--	continue
+		--end
+
+		print("Game started!")
+
+		task.wait(10)
+
+		current_time = intermission
+	end
+end
