@@ -1,0 +1,152 @@
+script.Name = "⚽"
+
+local tweenservice = game:GetService("TweenService")
+local physics_service = game:GetService("PhysicsService")
+
+local main = LoadAssets(17246179753)
+local map : Model = main:Get("football")
+local football : BasePart = main:Get("ball")
+
+local joined = {}
+local football_pos = football:GetPivot()
+
+-- precalculations
+map:PivotTo(map:GetPivot() * CFrame.new(0, 0.1, 0)) -- so if there is a spawn location, it spawns above it
+football:PivotTo(football:GetPivot() * CFrame.new(0, 0.1, 0)) -- moves because map moved
+
+physics_service:RegisterCollisionGroup("football")
+physics_service:RegisterCollisionGroup("map")
+physics_service:RegisterCollisionGroup("player")
+
+physics_service:CollisionGroupSetCollidable("football","player", true)
+physics_service:CollisionGroupSetCollidable("football", "map", true)
+physics_service:CollisionGroupSetCollidable("football", "Default", false)
+
+physics_service:CollisionGroupSetCollidable("player","player", false)
+physics_service:CollisionGroupSetCollidable("player","Default", false)
+physics_service:CollisionGroupSetCollidable("player", "map", false)
+
+for _, part in pairs(map:GetDescendants()) do
+	if part:IsA("BasePart") then
+		part.CollisionGroup = "map"
+	end
+end
+
+football.CollisionGroup =  "football"
+
+-- start game
+football.Anchored = false
+
+map.Parent = script
+football.Parent = script
+
+-- joining
+local prox : ProximityPrompt = map:FindFirstChild("join_prox",true)
+
+prox.Triggered:Connect(function(plr)
+	if table.find(joined,plr) then return end
+	
+	table.insert(joined, plr)
+	
+	local front = Instance.new("Part")
+	front.Massless = true
+	front.Size = Vector3.new(1,6,4.5)
+	front.CollisionGroup = "player"
+	front.Transparency = 0.75
+	
+	local front_weld = Instance.new("Weld")
+	front_weld.Name = "front_weld"
+	front_weld.C0 = CFrame.new(0, 0, -1.5) * CFrame.Angles(0, math.pi/2, 0)
+	front_weld.Part0 = plr.Character.HumanoidRootPart
+	front_weld.Part1 = front
+	front_weld.Parent = front
+	
+	front.Parent = script
+		
+	local gui = prox:FindFirstChild("reminder"):Clone()
+	gui.Parent = plr.PlayerGui
+	
+	task.delay(2.5,function()
+		local fade = tweenservice:Create(gui.txt, TweenInfo.new(1),{TextTransparency = 1})
+		fade:Play()
+		
+		fade.Completed:Connect(function()
+			gui:Destroy()
+		end)
+	end)
+	
+	NLS([[
+	-- sprinting
+
+	local uis = game:GetService("UserInputService")
+
+	local forgiveness = 0.5 -- amount of time inbetween taps that will activate sprint
+	local speed = 6 -- amount of walkspeed gained when sprinting
+
+	local last_tick = tick()
+	local sprinting = false
+
+	uis.InputBegan:Connect(function(input,typing)
+		if typing then return end
+
+		if input.KeyCode == Enum.KeyCode.W then
+			if tick()-last_tick < forgiveness then
+				-- current tick happened within (forgiveness) seconds of last_tick, enable sprint
+				owner.Character.Humanoid.WalkSpeed = owner.Character.Humanoid.WalkSpeed + speed
+				sprinting = true
+				last_tick = tick()
+			else
+				-- too slow
+				last_tick = tick()
+			end
+		end
+	end)
+
+	uis.InputEnded:Connect(function(input)	
+		if input.KeyCode == Enum.KeyCode.W then
+			if sprinting then
+				owner.Character.Humanoid.WalkSpeed = owner.Character.Humanoid.WalkSpeed - speed
+				sprinting = false
+				last_tick = tick()
+			end
+		end
+	end)
+	]],plr.PlayerGui)
+end)
+
+-- win conditions
+for _, win_part in pairs(map:GetDescendants()) do
+	if win_part:IsA("BasePart") then
+		if win_part.Name == "win condition" then
+			win_part.Anchored = true
+			win_part.CanCollide = false
+			win_part.Touched:Connect(function(hit)
+				if hit == football and not football:FindFirstChildOfClass("BodyPosition") then
+					local pos = Instance.new("BodyPosition") -- yeah i know its deprecated but its much easier to use
+					pos.Position = football_pos.Position
+					pos.P = 300
+					pos.D = 100
+					pos.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+					pos.Parent = football
+					
+					football.CanCollide = false
+					
+					local countdown = football.countdown
+					countdown.Enabled = true
+					
+					for i = 5, 0, -1 do
+						countdown.txt.Text = i
+						task.wait(1)
+					end
+					
+					pos:Destroy()
+					
+					countdown.Enabled = false
+					football.CanCollide = true
+					
+					football.AssemblyLinearVelocity = Vector3.new()
+				end
+			end)
+		end
+	end
+end
