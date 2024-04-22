@@ -28,6 +28,7 @@ physics_service:CollisionGroupSetCollidable("player", "map", false)
 
 for _, part in pairs(map:GetDescendants()) do
 	if part:IsA("BasePart") then
+		part.Locked = true
 		part.CollisionGroup = "map"
 	end
 end
@@ -35,6 +36,9 @@ end
 football.CollisionGroup =  "football"
 
 -- start game
+football.Name = game:GetService("HttpService"):GenerateGUID(false) -- sircfenner stay back
+football.Locked = true
+football.Archivable = false
 football.Anchored = false
 
 map.Parent = script
@@ -86,14 +90,32 @@ prox.Triggered:Connect(function(plr)
 	local last_tick = tick()
 	local sprinting = false
 
+	local humanoid = owner.Character:FindFirstChildOfClass("Humanoid")
+	
+	if humanoid then
+		if humanoid.WalkSpeed > 16 and not sprinting then
+			humanoid.WalkSpeed = 16
+		elseif humanoid.WalkSpeed > (16 + speed) and sprinting then
+			humanoid.WalkSpeed = 16 + speed
+		end
+			
+		humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+			if humanoid.WalkSpeed > 16 and not sprinting then
+				humanoid.WalkSpeed = 16
+			elseif humanoid.WalkSpeed > (16 + speed) and sprinting then
+				humanoid.WalkSpeed = 16 + speed
+			end
+		end)
+	end
+
 	uis.InputBegan:Connect(function(input,typing)
 		if typing then return end
 
 		if input.KeyCode == Enum.KeyCode.W then
 			if tick()-last_tick < forgiveness then
 				-- current tick happened within (forgiveness) seconds of last_tick, enable sprint
-				owner.Character.Humanoid.WalkSpeed = owner.Character.Humanoid.WalkSpeed + speed
 				sprinting = true
+				owner.Character.Humanoid.WalkSpeed = owner.Character.Humanoid.WalkSpeed + speed
 				last_tick = tick()
 			else
 				-- too slow
@@ -105,8 +127,8 @@ prox.Triggered:Connect(function(plr)
 	uis.InputEnded:Connect(function(input)	
 		if input.KeyCode == Enum.KeyCode.W then
 			if sprinting then
-				owner.Character.Humanoid.WalkSpeed = owner.Character.Humanoid.WalkSpeed - speed
 				sprinting = false
+				owner.Character.Humanoid.WalkSpeed = owner.Character.Humanoid.WalkSpeed - speed
 				last_tick = tick()
 			end
 		end
