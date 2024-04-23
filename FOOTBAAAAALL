@@ -1,11 +1,15 @@
 script.Name = "⚽"
 
 local tweenservice = game:GetService("TweenService")
-local physics_service = game:GetService("PhysicsService")
+local physics = game:GetService("PhysicsService")
+local http = game:GetService("HttpService")
+local debris = game:GetService("Debris")
 
 local main = LoadAssets(17246179753)
 local map : Model = main:Get("football")
 local football : BasePart = main:Get("ball")
+
+print("running")
 
 local joined = {}
 local football_pos = football:GetPivot()
@@ -14,35 +18,40 @@ local football_pos = football:GetPivot()
 map:PivotTo(map:GetPivot() * CFrame.new(0, 0.1, 0)) -- so if there is a spawn location, it spawns above it
 football:PivotTo(football:GetPivot() * CFrame.new(0, 0.1, 0)) -- moves because map moved
 
-physics_service:RegisterCollisionGroup("football")
-physics_service:RegisterCollisionGroup("map")
-physics_service:RegisterCollisionGroup("player")
+physics:RegisterCollisionGroup("football")
+physics:RegisterCollisionGroup("map")
+physics:RegisterCollisionGroup("player")
 
-physics_service:CollisionGroupSetCollidable("football","player", true)
-physics_service:CollisionGroupSetCollidable("football", "map", true)
-physics_service:CollisionGroupSetCollidable("football", "Default", false)
+physics:CollisionGroupSetCollidable("football","player", true)
+physics:CollisionGroupSetCollidable("football", "map", true)
+physics:CollisionGroupSetCollidable("football", "Default", false)
 
-physics_service:CollisionGroupSetCollidable("player","player", false)
-physics_service:CollisionGroupSetCollidable("player","Default", false)
-physics_service:CollisionGroupSetCollidable("player", "map", false)
+physics:CollisionGroupSetCollidable("player","player", false)
+physics:CollisionGroupSetCollidable("player","Default", false)
+physics:CollisionGroupSetCollidable("player", "map", false)
 
 for _, part in pairs(map:GetDescendants()) do
 	if part:IsA("BasePart") then
 		part.Locked = true
+		part.Archivable = false
 		part.CollisionGroup = "map"
 	end
 end
 
-football.CollisionGroup =  "football"
-
 -- start game
-football.Name = game:GetService("HttpService"):GenerateGUID(false) -- sircfenner stay back
-football.Locked = true
-football.Archivable = false
+football.CollisionGroup =  "football"
+football.Name = http:GenerateGUID(false) -- sircfenner stay back
+--football.Archivable = false
 football.Anchored = false
+football.Locked = true
+football.CustomPhysicalProperties = PhysicalProperties.new(0.01, 0.3, 50)
 
 map.Parent = script
 football.Parent = script
+
+football:SetNetworkOwner(nil)
+
+football_replacement = football:Clone()
 
 -- joining
 local prox : ProximityPrompt = map:FindFirstChild("join_prox",true)
@@ -54,13 +63,13 @@ prox.Triggered:Connect(function(plr)
 	
 	local front = Instance.new("Part")
 	front.Massless = true
-	front.Size = Vector3.new(1,6,4.5)
+	front.Size = Vector3.new(3,6,4.5)
 	front.CollisionGroup = "player"
 	front.Transparency = 0.75
 	
 	local front_weld = Instance.new("Weld")
 	front_weld.Name = "front_weld"
-	front_weld.C0 = CFrame.new(0, 0, -1.5) * CFrame.Angles(0, math.pi/2, 0)
+	front_weld.C0 = CFrame.new(0, 0, -2.5) * CFrame.Angles(0, math.pi/2, 0)
 	front_weld.Part0 = plr.Character.HumanoidRootPart
 	front_weld.Part1 = front
 	front_weld.Parent = front
@@ -70,7 +79,7 @@ prox.Triggered:Connect(function(plr)
 	local gui = prox:FindFirstChild("reminder"):Clone()
 	gui.Parent = plr.PlayerGui
 	
-	task.delay(2.5,function()
+	task.delay(10,function()
 		local fade = tweenservice:Create(gui.txt, TweenInfo.new(1),{TextTransparency = 1})
 		fade:Play()
 		
@@ -79,9 +88,10 @@ prox.Triggered:Connect(function(plr)
 		end)
 	end)
 	
-	NLS([[
+	local nls=NLS([[
 	-- sprinting
 
+	local owner = getfenv().owner -- i dislike warnings while in studio >:[
 	local uis = game:GetService("UserInputService")
 
 	local forgiveness = 0.5 -- amount of time inbetween taps that will activate sprint
@@ -90,15 +100,16 @@ prox.Triggered:Connect(function(plr)
 	local last_tick = tick()
 	local sprinting = false
 
+	local tackle = script:WaitForChild("tackle")
 	local humanoid = owner.Character:FindFirstChildOfClass("Humanoid")
-	
+
 	if humanoid then
 		if humanoid.WalkSpeed > 16 and not sprinting then
 			humanoid.WalkSpeed = 16
 		elseif humanoid.WalkSpeed > (16 + speed) and sprinting then
 			humanoid.WalkSpeed = 16 + speed
 		end
-			
+
 		humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
 			if humanoid.WalkSpeed > 16 and not sprinting then
 				humanoid.WalkSpeed = 16
@@ -121,6 +132,8 @@ prox.Triggered:Connect(function(plr)
 				-- too slow
 				last_tick = tick()
 			end
+		elseif input.KeyCode == Enum.KeyCode.R then
+			tackle:FireServer()
 		end
 	end)
 
@@ -134,6 +147,50 @@ prox.Triggered:Connect(function(plr)
 		end
 	end)
 	]],plr.PlayerGui)
+	
+	local on_cooldown = {}
+	
+	local tackle = Instance.new("RemoteEvent")
+	tackle.Name = "tackle"
+	tackle.Archivable = false
+	tackle.Parent = nls
+	
+	tackle.OnServerEvent:Connect(function(remplr)
+		if remplr == plr then
+			if table.find(on_cooldown, plr) then return end
+			print("tackle!!")
+			
+			table.insert(on_cooldown, plr)
+			
+			local bodyvel = Instance.new("BodyVelocity") -- yeah i know its deprecated but its much easier to use
+			bodyvel.Name = "tackle-vel"
+			bodyvel.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+			bodyvel.P = 100
+			bodyvel.Velocity = plr.Character.HumanoidRootPart.CFrame.LookVector * 75
+			bodyvel.Parent = plr.Character.HumanoidRootPart
+			
+			debris:AddItem(bodyvel, .1)
+			
+			--front.CanCollide = false
+			
+			task.delay(.1,function()
+				front.CanCollide = true
+				task.wait(1-.1)
+				table.remove(on_cooldown, table.find(on_cooldown, plr))
+			end)
+		else
+			print("naughty!!",remplr.Name)
+			remplr.Character.Humanoid.Health = 0
+			task.wait() -- give the game a moment to know the character died so it doesnt force back player position so explosion does like nothing
+			local x=Instance.new("Explosion")
+			x.Name = "naughty"
+			x.Position = remplr.Character.Head.Position
+			x.DestroyJointRadiusPercent = 0
+			x.BlastRadius = 1
+			x.Visible = true
+			x.Parent = remplr.Character
+		end
+	end)
 end)
 
 -- win conditions
@@ -144,6 +201,7 @@ for _, win_part in pairs(map:GetDescendants()) do
 			win_part.CanCollide = false
 			win_part.Touched:Connect(function(hit)
 				if hit == football and not football:FindFirstChildOfClass("BodyPosition") then
+					
 					local pos = Instance.new("BodyPosition") -- yeah i know its deprecated but its much easier to use
 					pos.Position = football_pos.Position
 					pos.P = 300
@@ -156,6 +214,14 @@ for _, win_part in pairs(map:GetDescendants()) do
 					local countdown = football.countdown
 					countdown.Enabled = true
 					
+					--task.spawn(function()
+						--while task.wait() do
+							--if pos.Parent ~= football then break end
+							football.AssemblyLinearVelocity = Vector3.new()
+							football.AssemblyAngularVelocity = Vector3.new()
+					--	end
+					--end)
+					
 					for i = 5, 0, -1 do
 						countdown.txt.Text = i
 						task.wait(1)
@@ -166,9 +232,21 @@ for _, win_part in pairs(map:GetDescendants()) do
 					countdown.Enabled = false
 					football.CanCollide = true
 					
-					football.AssemblyLinearVelocity = Vector3.new()
 				end
 			end)
 		end
 	end
 end
+
+-- extra
+owner.Chatted:Connect(function(msg)
+	if msg == "--resetball" then
+		pcall(function() football:Destroy() end) -- im too lazy
+		
+		local football = football_replacement:Clone()
+		football_replacement = football:Clone()
+		
+		football.Anchored = false
+		football.Parent = script
+	end
+end)
