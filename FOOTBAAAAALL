@@ -63,13 +63,13 @@ prox.Triggered:Connect(function(plr)
 	
 	local front = Instance.new("Part")
 	front.Massless = true
-	front.Size = Vector3.new(3,6,4.5)
+	front.Size = Vector3.new(1,6,4.5)
 	front.CollisionGroup = "player"
 	front.Transparency = 0.75
 	
 	local front_weld = Instance.new("Weld")
 	front_weld.Name = "front_weld"
-	front_weld.C0 = CFrame.new(0, 0, -2.5) * CFrame.Angles(0, math.pi/2, 0)
+	front_weld.C0 = CFrame.new(0, 0, -1.5) * CFrame.Angles(0, math.pi/2, 0)
 	front_weld.Part0 = plr.Character.HumanoidRootPart
 	front_weld.Part1 = front
 	front_weld.Parent = front
@@ -158,7 +158,6 @@ prox.Triggered:Connect(function(plr)
 	tackle.OnServerEvent:Connect(function(remplr)
 		if remplr == plr then
 			if table.find(on_cooldown, plr) then return end
-			print("tackle!!")
 			
 			table.insert(on_cooldown, plr)
 			
