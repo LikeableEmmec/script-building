@@ -1,9 +1,9 @@
-script.Name = "⚽"
-
 local tweenservice = game:GetService("TweenService")
 local physics = game:GetService("PhysicsService")
 local http = game:GetService("HttpService")
 local debris = game:GetService("Debris")
+
+script.Name = http:GenerateGUID(false)
 
 local main = LoadAssets(17246179753)
 local map : Model = main:Get("football")
@@ -34,13 +34,18 @@ for _, part in pairs(map:GetDescendants()) do
 	if part:IsA("BasePart") then
 		part.Locked = true
 		part.Archivable = false
+		part.Anchored = true
+		--part.CanQuery = false
+		--part.CanTouch = false
 		part.CollisionGroup = "map"
+		--part.Name = http:GenerateGUID(false) -- force removers stay back
 	end
 end
 
 -- start game
 football.CollisionGroup =  "football"
 football.Name = http:GenerateGUID(false) -- sircfenner stay back
+map.Name = http:GenerateGUID(false) -- force removers stay back
 --football.Archivable = false
 football.Anchored = false
 football.Locked = true
@@ -54,6 +59,7 @@ football:SetNetworkOwner(nil)
 football_replacement = football:Clone()
 
 -- joining
+local on_cooldown = {}
 local prox : ProximityPrompt = map:FindFirstChild("join_prox",true)
 
 prox.Triggered:Connect(function(plr)
@@ -63,13 +69,13 @@ prox.Triggered:Connect(function(plr)
 	
 	local front = Instance.new("Part")
 	front.Massless = true
-	front.Size = Vector3.new(1,6,4.5)
+	front.Size = Vector3.new(4,6,4.5)
 	front.CollisionGroup = "player"
 	front.Transparency = 0.75
 	
 	local front_weld = Instance.new("Weld")
 	front_weld.Name = "front_weld"
-	front_weld.C0 = CFrame.new(0, 0, -1.5) * CFrame.Angles(0, math.pi/2, 0)
+	front_weld.C0 =--[[ CFrame.new(0, 0, -1.5) * ]]CFrame.Angles(0, math.pi/2, 0)
 	front_weld.Part0 = plr.Character.HumanoidRootPart
 	front_weld.Part1 = front
 	front_weld.Parent = front
@@ -148,8 +154,6 @@ prox.Triggered:Connect(function(plr)
 	end)
 	]],plr.PlayerGui)
 	
-	local on_cooldown = {}
-	
 	local tackle = Instance.new("RemoteEvent")
 	tackle.Name = "tackle"
 	tackle.Archivable = false
@@ -197,7 +201,6 @@ for _, win_part in pairs(map:GetDescendants()) do
 	if win_part:IsA("BasePart") then
 		if win_part.Name == "win condition" then
 			win_part.Anchored = true
-			win_part.CanCollide = false
 			win_part.Touched:Connect(function(hit)
 				if hit == football and not football:FindFirstChildOfClass("BodyPosition") then
 					
@@ -242,7 +245,7 @@ owner.Chatted:Connect(function(msg)
 	if msg == "--resetball" then
 		pcall(function() football:Destroy() end) -- im too lazy
 		
-		local football = football_replacement:Clone()
+		football = football_replacement:Clone()
 		football_replacement = football:Clone()
 		
 		football.Anchored = false
