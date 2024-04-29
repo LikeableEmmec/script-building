@@ -1,0 +1,58 @@
+if script.ClassName ~= "LocalScript" then
+	warn("Must be a local script. Commands:\nr/ = rl/\nc/ = l/\nh/ = hl/")
+	return
+end
+
+local gui = Instance.new("ScreenGui")
+gui.IgnoreGuiInset = true
+gui.Name = "gui-cursor_effects"
+
+local sfx_container = Instance.new("Frame")
+sfx_container.Name = "obj-sfx_container"
+sfx_container.Size = UDim2.fromScale(1,1)
+sfx_container.BackgroundTransparency = 1
+sfx_container.Parent = gui
+
+local tweenservice = game:GetService("TweenService")
+local players = game:GetService("Players")
+
+local mouse = players.LocalPlayer:GetMouse()
+local count = 50
+
+local effects = {
+	[1] = {
+		__init__ = function(x, y)
+			for i = 1, count do
+				local img = Instance.new("ImageLabel")
+				img.Name = "cursor no."..i
+				img.BackgroundTransparency = 1
+				img.ZIndex = (count - i)+1
+				img.LayoutOrder = img.ZIndex
+				img.Image = "rbxasset://Textures/Cursors/KeyboardMouse/ArrowFarCursor.png"
+				img.AnchorPoint = Vector2.new(1,1)
+				img.Position = UDim2.new(0.026,x,0.059,y)
+				img.Size = UDim2.fromScale(.05,.05)
+				img.ScaleType = Enum.ScaleType.Fit
+				img.Parent = sfx_container
+			end
+		end,
+		
+		__moved__ = function(x, y)
+			for _, cursor in pairs(sfx_container:GetChildren()) do
+				task.delay(cursor.ZIndex/200,function()
+					--cursor.Position = UDim2.new(.5, x, .5, y)
+					tweenservice:Create(cursor, TweenInfo.new(.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(cursor.Position.X.Scale, x, cursor.Position.Y.Scale, y)}):Play()
+				end)
+			end
+		end,
+	},
+}
+
+local curr_effect = effects[1]
+curr_effect.__init__(mouse.X, mouse.Y)
+
+mouse.Move:Connect(function()
+	curr_effect.__moved__(mouse.X,mouse.Y)
+end)
+
+gui.Parent = owner.PlayerGui
