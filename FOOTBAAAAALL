@@ -1,15 +1,13 @@
-local tweenservice = game:GetService("TweenService")
 local physics = game:GetService("PhysicsService")
 local http = game:GetService("HttpService")
 local debris = game:GetService("Debris")
+local collection = game:GetService("CollectionService")
 
-script.Name = http:GenerateGUID(false)
+script.Name = "⚽"
 
 local main = LoadAssets(17246179753)
 local map : Model = main:Get("football")
 local football : BasePart = main:Get("ball")
-
-print("running")
 
 local joined = {}
 local football_pos = football:GetPivot()
@@ -30,26 +28,29 @@ physics:CollisionGroupSetCollidable("player","player", false)
 physics:CollisionGroupSetCollidable("player","Default", false)
 physics:CollisionGroupSetCollidable("player", "map", false)
 
+-- anti griefing
+football.Name = http:GenerateGUID(false) -- sircfenner stay back
+map.Name = http:GenerateGUID(false) -- force removers stay back
 for _, part in pairs(map:GetDescendants()) do
 	if part:IsA("BasePart") then
 		part.Locked = true
 		part.Archivable = false
 		part.Anchored = true
-		--part.CanQuery = false
-		--part.CanTouch = false
+		part.CanTouch = false
+		if part.CanCollide == false then
+			part.CanQuery = false
+		end
 		part.CollisionGroup = "map"
-		--part.Name = http:GenerateGUID(false) -- force removers stay back
+		if part.Name == "win condition" then part.CanTouch = true part.CanQuery = true collection:AddTag(part, "win condition") end
+		part.Name = http:GenerateGUID(false) -- force removers stay back
 	end
 end
 
 -- start game
 football.CollisionGroup =  "football"
-football.Name = http:GenerateGUID(false) -- sircfenner stay back
-map.Name = http:GenerateGUID(false) -- force removers stay back
---football.Archivable = false
 football.Anchored = false
 football.Locked = true
-football.CustomPhysicalProperties = PhysicalProperties.new(0.01, 0.3, 50)
+football.CustomPhysicalProperties = PhysicalProperties.new(0.01, 0.3, .5)
 
 map.Parent = script
 football.Parent = script
@@ -57,6 +58,7 @@ football.Parent = script
 football:SetNetworkOwner(nil)
 
 football_replacement = football:Clone()
+football.Archivable = false
 
 -- joining
 local on_cooldown = {}
@@ -64,48 +66,23 @@ local prox : ProximityPrompt = map:FindFirstChild("join_prox",true)
 
 prox.Triggered:Connect(function(plr)
 	if table.find(joined,plr) then return end
-	
-	table.insert(joined, plr)
-	
-	local front = Instance.new("Part")
-	front.Massless = true
-	front.Size = Vector3.new(4,6,4.5)
-	front.CollisionGroup = "player"
-	front.Transparency = 0.75
-	
-	local front_weld = Instance.new("Weld")
-	front_weld.Name = "front_weld"
-	front_weld.C0 =--[[ CFrame.new(0, 0, -1.5) * ]]CFrame.Angles(0, math.pi/2, 0)
-	front_weld.Part0 = plr.Character.HumanoidRootPart
-	front_weld.Part1 = front
-	front_weld.Parent = front
-	
-	front.Parent = script
-		
-	local gui = prox:FindFirstChild("reminder"):Clone()
-	gui.Parent = plr.PlayerGui
-	
-	task.delay(10,function()
-		local fade = tweenservice:Create(gui.txt, TweenInfo.new(1),{TextTransparency = 1})
-		fade:Play()
-		
-		fade.Completed:Connect(function()
-			gui:Destroy()
-		end)
-	end)
-	
+
 	local nls=NLS([[
 	-- sprinting
 
 	local owner = getfenv().owner -- i dislike warnings while in studio >:[
+	
 	local uis = game:GetService("UserInputService")
+	local tweenservice = game:GetService("TweenService")
 
 	local forgiveness = 0.5 -- amount of time inbetween taps that will activate sprint
 	local speed = 6 -- amount of walkspeed gained when sprinting
 
 	local last_tick = tick()
 	local sprinting = false
-
+	
+	script:WaitForChild("nls-accepted"):FireServer() -- tell server that the client has accepted the local script
+	
 	local tackle = script:WaitForChild("tackle")
 	local humanoid = owner.Character:FindFirstChildOfClass("Humanoid")
 
@@ -152,55 +129,152 @@ prox.Triggered:Connect(function(plr)
 			end
 		end
 	end)
+	
+	local gui = script:FindFirstChild("reminder").Value:Clone()
+	gui.Adornee = owner.Character.Head
+	gui.Enabled = true
+	gui.Parent = script:FindFirstChild("main").Value
+
+	task.delay(10,function()
+		tweenservice:Create(gui.txt.UIStroke,TweenInfo.new(1),{Transparency = 1}):Play()
+		local fade = tweenservice:Create(gui.txt, TweenInfo.new(1),{TextTransparency = 1})
+		fade:Play()
+
+		fade.Completed:Connect(function()
+			gui:Destroy()
+		end)
+	end)
 	]],plr.PlayerGui)
 	
-	local tackle = Instance.new("RemoteEvent")
-	tackle.Name = "tackle"
-	tackle.Archivable = false
-	tackle.Parent = nls
+	local gui = Instance.new("ObjectValue")
+	gui.Name = "reminder"
+	gui.Value = prox.reminder
+	gui.Parent = nls
 	
-	tackle.OnServerEvent:Connect(function(remplr)
-		if remplr == plr then
-			if table.find(on_cooldown, plr) then return end
-			
-			table.insert(on_cooldown, plr)
-			
-			local bodyvel = Instance.new("BodyVelocity") -- yeah i know its deprecated but its much easier to use
-			bodyvel.Name = "tackle-vel"
-			bodyvel.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
-			bodyvel.P = 100
-			bodyvel.Velocity = plr.Character.HumanoidRootPart.CFrame.LookVector * 75
-			bodyvel.Parent = plr.Character.HumanoidRootPart
-			
-			debris:AddItem(bodyvel, .1)
-			
-			--front.CanCollide = false
-			
-			task.delay(.1,function()
-				front.CanCollide = true
-				task.wait(1-.1)
-				table.remove(on_cooldown, table.find(on_cooldown, plr))
-			end)
-		else
-			print("naughty!!",remplr.Name)
-			remplr.Character.Humanoid.Health = 0
-			task.wait() -- give the game a moment to know the character died so it doesnt force back player position so explosion does like nothing
+	local this_script = Instance.new("ObjectValue")
+	this_script.Name = "main"
+	this_script.Value = script
+	this_script.Parent = nls
+	
+	local input_recieved = Instance.new("RemoteEvent")
+	input_recieved.Name = "nls-accepted"
+	input_recieved.Parent = nls
+	
+	input_recieved.OnServerEvent:Connect(function(rem_plr)
+		if rem_plr ~= plr then
+			print("naughty!!",rem_plr.Name)
+			rem_plr.Character.Humanoid.Health = 0
+			task.wait()
 			local x=Instance.new("Explosion")
 			x.Name = "naughty"
-			x.Position = remplr.Character.Head.Position
+			x.Position = rem_plr.Character.Head.Position
 			x.DestroyJointRadiusPercent = 0
 			x.BlastRadius = 1
 			x.Visible = true
-			x.Parent = remplr.Character
+			x.Parent = rem_plr.Character
+			return
 		end
+		
+		input_recieved:Destroy()
+		
+		print("NLS accepted by "..plr.Name)
+		
+		table.insert(joined, plr)
+
+		local fake_front = Instance.new("Part") -- this is the fake version just so it looks cleaner
+		fake_front.Massless = true
+		fake_front.CanCollide = false
+		fake_front.Transparency  = .75
+		fake_front.Size = Vector3.new(1,6.5,4.5)
+		fake_front.CollisionGroup = "player"
+
+		local front = Instance.new("Part")
+		front.Massless = true
+		front.CanCollide = true
+		front.Transparency = 1
+		front.Size = Vector3.new(4,6,4.5)
+		front.CollisionGroup = "player"
+
+		local front_weld_fake = Instance.new("Weld")
+		front_weld_fake.Name = "front_weld"
+		front_weld_fake.C0 = CFrame.new(0, 0, -1.5) * CFrame.Angles(0, math.pi/2, 0)
+		front_weld_fake.Part0 = plr.Character.HumanoidRootPart
+		front_weld_fake.Part1 = fake_front
+		front_weld_fake.Parent = fake_front
+
+		local front_weld = Instance.new("Weld")
+		front_weld.Name = "front_weld"
+		--front_weld.C0 = CFrame.new(0, 0, -1.5) * CFrame.Angles(0, math.pi/2, 0)
+		front_weld.Part0 = plr.Character.HumanoidRootPart
+		front_weld.Part1 = front
+		front_weld.Parent = front
+
+		fake_front.Parent = script
+		front.Parent = script
+
+		--local gui = prox:FindFirstChild("reminder"):Clone()
+		--gui.Enabled = true
+		--gui.Parent = plr.Character.Head
+
+		--task.delay(10,function()
+		--	tweenservice:Create(gui.txt.UIStroke,TweenInfo.new(1),{Transparency = 1}):Play()
+		--	local fade = tweenservice:Create(gui.txt, TweenInfo.new(1),{TextTransparency = 1})
+		--	fade:Play()
+
+		--	fade.Completed:Connect(function()
+		--		gui:Destroy()
+		--	end)
+		--end)
+
+		local tackle = Instance.new("RemoteEvent")
+		tackle.Name = "tackle"
+		tackle.Archivable = false
+		tackle.Parent = nls
+
+		tackle.OnServerEvent:Connect(function(remplr)
+			if remplr == plr then
+				if table.find(on_cooldown, plr) then return end
+
+				table.insert(on_cooldown, plr)
+
+				local bodyvel = Instance.new("BodyVelocity") -- yeah i know its deprecated but its much easier to use
+				bodyvel.Name = "tackle-vel"
+				bodyvel.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+				bodyvel.P = 100
+				bodyvel.Velocity = plr.Character.HumanoidRootPart.CFrame.LookVector * 75
+				bodyvel.Parent = plr.Character.HumanoidRootPart
+
+				debris:AddItem(bodyvel, .1)
+
+				--front.CanCollide = false
+
+				task.delay(.1,function()
+					front.CanCollide = true
+					task.wait(1-.1)
+					table.remove(on_cooldown, table.find(on_cooldown, plr))
+				end)
+			else
+				print("naughty!!",remplr.Name)
+				remplr.Character.Humanoid.Health = 0
+				task.wait() -- give the game a moment to know the character died so it doesnt force back player position so explosion does the funny
+				local x=Instance.new("Explosion")
+				x.Name = "naughty"
+				x.Position = remplr.Character.Head.Position
+				x.DestroyJointRadiusPercent = 0
+				x.BlastRadius = 1
+				x.Visible = true
+				x.Parent = remplr.Character
+			end
+		end)
 	end)
 end)
 
 -- win conditions
 for _, win_part in pairs(map:GetDescendants()) do
 	if win_part:IsA("BasePart") then
-		if win_part.Name == "win condition" then
+		if collection:HasTag(win_part, "win condition") then
 			win_part.Anchored = true
+			win_part.CanCollide = false
 			win_part.Touched:Connect(function(hit)
 				if hit == football and not football:FindFirstChildOfClass("BodyPosition") then
 					
@@ -249,6 +323,7 @@ owner.Chatted:Connect(function(msg)
 		football_replacement = football:Clone()
 		
 		football.Anchored = false
+		football.Archivable = false
 		football.Parent = script
 	end
 end)
