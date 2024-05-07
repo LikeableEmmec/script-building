@@ -51,7 +51,7 @@ local http = game:GetService("HttpService")
 
 local token = http:JSONDecode(http:GetAsync("https://open.spotify.com/get_access_token?reason=transport&productType=web_player", false, {
 	["App-platform"] = "WebPlayer",
-	["cookie"] = "sp_dc=" .. "AQCLf3BMla6BMrP4ywoZi9RaOJeTuMD0oXM8e4ajbGNfbv9W7DF2hDnmqnCqgyUIoq_N51c56OrpADfnvx8UDY_Hqy791DVhFu76R0CSP6MVgKv3GelHCq1ej_iiNtaNAKg2XTHErNLCu1wFeUKVxf2sAv_90yIz"
+	["cookie"] = "sp_dc=" .. ...
 }))
 local access_token = token.accessToken
 
