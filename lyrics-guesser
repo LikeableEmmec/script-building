@@ -210,7 +210,7 @@ local function get()
 		name ="Harness Your Hopes"
 	end
 
-	if name == "California Dreamin - Single Version" then
+	if name == "California Dreamin' - Single Version" then
 		name = "California Dreamin"
 	end
 
@@ -246,7 +246,10 @@ while true do
 	
 	name = name:gsub("[^%w%s&]+", "")
 	
+	if name == "DaylightMoonlight" then name = "Daylight/Moonlight" end
+
 	printf("\""..name.."\"".." by "..artist)
+	
 	
 	local computed_lyrics = ""
 	local lyrics_computed = 0
